@@ -425,6 +425,9 @@
   }
 
   async function submitBooking() {
+    // Webhook NUR wenn Datum + Zeit gewählt – verhindert frühes Feuern
+    if (!selectedDate || !selectedTime) return;
+
     const name = prefill.name || document.getElementById('fieldName')?.value.trim();
     const email = prefill.email || document.getElementById('fieldEmail')?.value.trim();
 
