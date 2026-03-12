@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="format-detection" content="telephone=no">
 <title>Laionex – Dein digitaler Mitarbeiter für Österreich</title>
 
 <!-- SEO -->
@@ -191,9 +192,10 @@
   .demo-left { flex: 1; }
   .demo-title { font-family: var(--font-display); font-size: clamp(36px, 5vw, 60px); line-height: 0.95; text-transform: uppercase; margin-bottom: 24px; }
   .demo-desc { font-size: 16px; color: var(--grey-text); line-height: 1.7; margin-bottom: 40px; }
-  .demo-number { font-family: var(--font-mono); font-size: 13px; letter-spacing: 2px; color: var(--orange); margin-bottom: 8px; }
-  .demo-call-btn { display: inline-flex; align-items: center; gap: 12px; background: var(--orange); color: var(--black); font-family: var(--font-mono); font-size: 13px; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; padding: 18px 36px; font-weight: 700; transition: all 0.2s; }
+  .demo-number { font-family: var(--font-mono); font-size: 13px; letter-spacing: 2px; color: var(--orange); margin-bottom: 8px; -webkit-tap-highlight-color: transparent; }
+  .demo-call-btn { display: inline-flex; align-items: center; gap: 12px; background: var(--orange); color: var(--black); font-family: var(--font-mono); font-size: 13px; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; padding: 18px 36px; font-weight: 700; transition: all 0.2s; -webkit-tap-highlight-color: rgba(255,77,0,0.3); }
   .demo-call-btn:hover { background: var(--orange-dim); transform: translateY(-2px); }
+  a[href^="tel:"] { color: var(--orange); -webkit-tap-highlight-color: rgba(255,77,0,0.2); }
   .demo-pulse { width: 12px; height: 12px; background: var(--black); border-radius: 50%; animation: pulse 1.5s infinite; }
   @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.7; } }
   .demo-right { flex: 0 0 220px; text-align: center; }
@@ -691,7 +693,7 @@
   <p><strong style="color:var(--white);">Angaben gemäß § 5 ECG</strong></p><br>
   <p><strong style="color:var(--white);">Unternehmensinhaber:</strong><br>Lorenz Vötter<br>Neder 329a<br>6156 Gries am Brenner<br>Österreich</p><br>
   <p><strong style="color:var(--white);">Unternehmensform:</strong><br>Einzelunternehmen (Kleinunternehmen gemäß § 6 Abs. 1 Z 27 UStG)</p><br>
-  <p><strong style="color:var(--white);">Kontakt:</strong><br>E-Mail: <a href="mailto:info@laionex.at" style="color:var(--orange);">info@laionex.at</a><br>Tel: <a href="tel:+43720080601" style="color:var(--orange);">+43 720 080 601</a></p><br>
+  <p><strong style="color:var(--white);">Kontakt:</strong><br>E-Mail: <a href="mailto:info@laionex.at" style="color:var(--orange);">info@laionex.at</a><br>Tel: <a href="tel:+43720080601" class="tel-link">+43 720 080 601</a></p><br>
   <p><strong style="color:var(--white);">Unternehmensgegenstand:</strong><br>Entwicklung und Vermietung von KI-gestützten Kommunikationslösungen für Unternehmen.</p><br>
   <p><strong style="color:var(--white);">Aufsichtsbehörde:</strong><br>Bezirkshauptmannschaft Innsbruck-Land</p><br>
   <p><strong style="color:var(--white);">EU-Streitschlichtung:</strong><br>Plattform der EU-Kommission: <a href="https://ec.europa.eu/consumers/odr" target="_blank" style="color:var(--orange);">https://ec.europa.eu/consumers/odr</a>. Wir nehmen nicht an Streitbeilegungsverfahren teil.</p>
