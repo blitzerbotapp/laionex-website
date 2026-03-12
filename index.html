@@ -665,14 +665,6 @@
       </div>
       <button class="flow-next" id="next5" disabled onclick="submitFlow()">Termin buchen →</button>
     </div>
-    <div class="flow-step" id="stepSuccess">
-      <div class="flow-success">
-        <div class="flow-success-icon">🔥</div>
-        <h3>Fast fertig!</h3>
-        <p>Wähle jetzt deinen Wunschtermin für den kostenlosen KI-Check.<br><br><small style="color:rgba(255,255,255,0.35); font-family:var(--font-mono); font-size:11px; letter-spacing:1px;">Mit der Buchung stimmst du der Verarbeitung deiner Daten gemäß unserer <a href="#datenschutz" onclick="closeFlow();" style="color:var(--orange);">Datenschutzerklärung</a> zu.</small></p>
-        <a href="buchen.html" class="flow-cal-btn" id="calLink">Termin auswählen →</a>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -809,10 +801,8 @@
     const tel = document.getElementById('inputTel').value.trim();
     const meeting = selectedMeeting === 'zoom' ? 'Zoom / Video Call' : 'Vor Ort';
 
-    // Webhook erst bei finalem "Termin bestätigen" in buchen.html – hier noch kein Datum/Zeit
     const params = new URLSearchParams({ name, email, firma, branche, tel, meeting });
-    document.getElementById('calLink').href = 'buchen.html?' + params.toString();
-    nextStep(6);
+    window.location.href = 'buchen.html?' + params.toString();
   }
 
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFlow(); });
