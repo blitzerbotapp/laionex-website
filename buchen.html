@@ -457,9 +457,15 @@
     // time: HH:mm (already correct from SLOT_TIMES)
     const timeFormatted = selectedTime;
 
-    // ISO 8601 für Zoho Calendar (PATTERN_NOT_MATCHED vermeiden)
-    const startDatetime = dateFormatted + 'T' + timeFormatted + ':00Z';
-    const endDatetime = dateFormatted + 'T' + addMinutesToTime(timeFormatted, 30) + ':00Z';
+    // Zoho Calendar Format: yyyyMMddTHHmmssZ (z.B. 20260320T110000Z)
+    const dateZoho = y + m + d;
+    const [th, tm] = timeFormatted.split(':');
+    const timeZoho = th + tm + '00';
+    const endTime = addMinutesToTime(timeFormatted, 30);
+    const [eh, em] = endTime.split(':');
+    const endTimeZoho = eh + em + '00';
+    const startZoho = dateZoho + 'T' + timeZoho + 'Z';
+    const endZoho = dateZoho + 'T' + endTimeZoho + 'Z';
 
     const payload = {
       name,
@@ -471,9 +477,9 @@
       date: dateFormatted,
       time: timeFormatted,
       date_readable: dateStr + ' · ' + selectedTime + ' Uhr',
-      timestamp: startDatetime,
-      start_datetime: startDatetime,
-      end_datetime: endDatetime
+      timestamp: dateFormatted + 'T' + timeFormatted + ':00Z',
+      start_datetime: startZoho,
+      end_datetime: endZoho
     };
 
     document.getElementById('loadingOverlay').classList.add('active');
