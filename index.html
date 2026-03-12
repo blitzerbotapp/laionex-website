@@ -808,7 +808,7 @@
     const tel = document.getElementById('inputTel').value.trim();
     const meeting = selectedMeeting === 'zoom' ? 'Zoom / Video Call' : 'Vor Ort';
 
-    fetch('https://hook.eu2.make.com/5iol4uz14cf5gkl5khr025u4jvt0fu2k', {
+    fetch('https://hook.eu2.make.com/3ylr1ynax3l3kvgid8c0lbe8qwg9o2k7', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, firma, branche, tel, meeting, timestamp: new Date().toISOString() })
