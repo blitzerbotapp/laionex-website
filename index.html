@@ -808,12 +808,7 @@
     const tel = document.getElementById('inputTel').value.trim();
     const meeting = selectedMeeting === 'zoom' ? 'Zoom / Video Call' : 'Vor Ort';
 
-    fetch('https://hook.eu2.make.com/spx25hcsooa8lquuru09tny1edoz2ekz', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, firma, branche, tel, meeting, timestamp: new Date().toISOString() })
-    }).catch(() => {});
-
+    // Webhook erst bei finalem "Termin bestätigen" in buchen.html – hier noch kein Datum/Zeit
     const params = new URLSearchParams({ name, email, firma, branche, tel, meeting });
     document.getElementById('calLink').href = 'buchen.html?' + params.toString();
     nextStep(6);
