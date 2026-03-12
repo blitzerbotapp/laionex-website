@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KI-Check buchen · Laionex</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --black: #0a0a0a;
+      --grey: #111111;
+      --orange: #ff4d00;
+      --orange-dim: #cc3d00;
+      --white: #f0ede8;
+      --grey-text: #888;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-mono: 'IBM Plex Mono', monospace;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--black); color: var(--white); font-family: var(--font-mono); min-height: 100vh; }
+
+    /* NAV */
+    nav { padding: 24px 48px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .nav-logo { font-family: var(--font-display); font-size: 24px; letter-spacing: 3px; text-decoration: none; color: var(--white); }
+    .nav-logo .ai { color: var(--orange); }
+    .nav-back { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; color: var(--grey-text); text-decoration: none; text-transform: uppercase; transition: color 0.2s; display: flex; align-items: center; gap: 8px; }
+    .nav-back:hover { color: var(--white); }
+
+    /* LAYOUT */
+    .page { display: grid; grid-template-columns: 1fr 1fr; min-height: calc(100vh - 73px); }
+
+    /* LEFT PANEL */
+    .left-panel { padding: 80px 64px; border-right: 1px solid rgba(255,255,255,0.06); display: flex; flex-direction: column; justify-content: space-between; position: sticky; top: 0; height: calc(100vh - 73px); overflow: hidden; }
+    .left-bg { position: absolute; inset: 0; background: radial-gradient(ellipse at 20% 50%, rgba(255,77,0,0.05) 0%, transparent 60%); pointer-events: none; }
+    .left-content { position: relative; z-index: 1; }
+    .left-tag { font-size: 11px; letter-spacing: 3px; color: var(--orange); text-transform: uppercase; margin-bottom: 32px; display: flex; align-items: center; gap: 12px; }
+    .left-tag::before { content: ''; width: 24px; height: 1px; background: var(--orange); }
+    .left-title { font-family: var(--font-display); font-size: clamp(48px, 5vw, 72px); line-height: 0.95; text-transform: uppercase; margin-bottom: 32px; }
+    .left-desc { color: var(--grey-text); font-size: 14px; line-height: 1.8; max-width: 340px; margin-bottom: 48px; }
+    .left-checklist { display: flex; flex-direction: column; gap: 16px; }
+    .check-item { display: flex; align-items: flex-start; gap: 12px; font-size: 13px; color: var(--grey-text); }
+    .check-icon { color: var(--orange); font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+    .left-bottom { position: relative; z-index: 1; }
+    .duration-badge { display: inline-flex; align-items: center; gap: 10px; border: 1px solid rgba(255,77,0,0.2); padding: 14px 20px; font-size: 12px; letter-spacing: 1px; color: var(--grey-text); }
+    .duration-dot { width: 8px; height: 8px; background: var(--orange); border-radius: 50%; animation: blink 2s infinite; }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    /* RIGHT PANEL — CALENDAR */
+    .right-panel { padding: 60px 64px; overflow-y: auto; }
+    .section-label { font-size: 11px; letter-spacing: 3px; color: var(--orange); text-transform: uppercase; margin-bottom: 32px; display: flex; align-items: center; gap: 16px; }
+    .section-label::after { content: ''; width: 40px; height: 1px; background: var(--orange); opacity: 0.4; }
+
+    /* PREFILL SUMMARY */
+    .prefill-card { background: rgba(255,77,0,0.05); border: 1px solid rgba(255,77,0,0.12); padding: 20px 24px; margin-bottom: 40px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .prefill-info { font-size: 12px; color: var(--grey-text); letter-spacing: 1px; }
+    .prefill-name { color: var(--white); font-size: 14px; margin-bottom: 4px; }
+    .prefill-edit { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--orange); text-decoration: none; cursor: pointer; background: none; border: none; transition: opacity 0.2s; }
+    .prefill-edit:hover { opacity: 0.7; }
+
+    /* MONTH NAV */
+    .month-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+    .month-title { font-family: var(--font-display); font-size: 32px; letter-spacing: 2px; text-transform: uppercase; }
+    .month-btn { background: none; border: 1px solid rgba(255,255,255,0.1); color: var(--white); width: 40px; height: 40px; cursor: pointer; font-size: 16px; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+    .month-btn:hover { border-color: var(--orange); color: var(--orange); }
+    .month-btn:disabled { opacity: 0.2; cursor: not-allowed; }
+
+    /* CALENDAR GRID */
+    .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 40px; }
+    .cal-header { font-size: 10px; letter-spacing: 2px; color: var(--grey-text); text-align: center; padding: 8px 0; text-transform: uppercase; }
+    .cal-day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; font-size: 13px; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; position: relative; }
+    .cal-day:hover:not(.disabled):not(.empty) { border-color: rgba(255,77,0,0.4); color: var(--orange); }
+    .cal-day.selected { background: var(--orange); color: var(--black); font-weight: 700; border-color: var(--orange); }
+    .cal-day.today { border-color: rgba(255,255,255,0.2); }
+    .cal-day.disabled, .cal-day.empty { color: rgba(255,255,255,0.15); cursor: default; }
+    .cal-day.has-slots::after { content: ''; position: absolute; bottom: 4px; width: 4px; height: 4px; background: var(--orange); border-radius: 50%; opacity: 0.6; }
+    .cal-day.selected::after { background: var(--black); }
+
+    /* TIME SLOTS */
+    .slots-section { margin-bottom: 40px; display: none; }
+    .slots-section.visible { display: block; }
+    .slots-title { font-size: 12px; letter-spacing: 2px; color: var(--grey-text); text-transform: uppercase; margin-bottom: 16px; }
+    .slots-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .slot-btn { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--grey-text); font-family: var(--font-mono); font-size: 13px; padding: 14px 8px; cursor: pointer; transition: all 0.15s; text-align: center; }
+    .slot-btn:hover { border-color: rgba(255,77,0,0.4); color: var(--white); }
+    .slot-btn.selected { background: var(--orange); color: var(--black); border-color: var(--orange); font-weight: 700; }
+    .slot-btn.taken {
+  opacity: 0.35;
+  cursor: not-allowed;
+  background: transparent;
+  border-color: #333;
+  color: #444;
+  text-decoration: line-through;
+}
+
+    /* CONFIRM SECTION */
+    .confirm-section { display: none; }
+    .confirm-section.visible { display: block; }
+    .confirm-summary { background: var(--grey); border: 1px solid rgba(255,255,255,0.06); padding: 28px 32px; margin-bottom: 24px; }
+    .confirm-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 13px; }
+    .confirm-row:last-child { border: none; }
+    .confirm-label { color: var(--grey-text); letter-spacing: 1px; font-size: 11px; text-transform: uppercase; }
+    .confirm-value { color: var(--white); text-align: right; }
+    .confirm-btn { width: 100%; background: var(--orange); color: var(--black); font-family: var(--font-mono); font-size: 14px; letter-spacing: 2px; text-transform: uppercase; border: none; padding: 20px; cursor: pointer; font-weight: 700; transition: all 0.2s; }
+    .confirm-btn:hover { background: var(--orange-dim); }
+    .confirm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .confirm-note { font-size: 11px; color: var(--grey-text); text-align: center; margin-top: 16px; letter-spacing: 1px; line-height: 1.7; }
+    .confirm-note a { color: var(--orange); text-decoration: none; }
+
+    /* SUCCESS STATE */
+    .success-screen { display: none; text-align: center; padding: 60px 0; }
+    .success-screen.visible { display: block; }
+    .success-icon { font-size: 56px; margin-bottom: 24px; }
+    .success-title { font-family: var(--font-display); font-size: 56px; text-transform: uppercase; margin-bottom: 16px; }
+    .success-desc { color: var(--grey-text); font-size: 14px; line-height: 1.8; max-width: 400px; margin: 0 auto 32px; }
+    .success-detail { background: rgba(255,77,0,0.05); border: 1px solid rgba(255,77,0,0.15); padding: 20px 28px; display: inline-flex; flex-direction: column; gap: 8px; text-align: left; font-size: 12px; color: var(--grey-text); }
+    .success-detail strong { color: var(--white); }
+    .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(10,10,10,0.9); z-index: 100; align-items: center; justify-content: center; flex-direction: column; gap: 20px; }
+    .loading-overlay.active { display: flex; }
+    .loading-spinner { width: 40px; height: 40px; border: 2px solid rgba(255,77,0,0.2); border-top-color: var(--orange); border-radius: 50%; animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 12px; letter-spacing: 3px; color: var(--grey-text); text-transform: uppercase; }
+
+    /* MOBILE */
+    @media (max-width: 900px) {
+      .page { grid-template-columns: 1fr; }
+      .left-panel { position: relative; height: auto; padding: 48px 24px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+      .right-panel { padding: 40px 24px; }
+      nav { padding: 20px 24px; }
+      .slots-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">L<span class="ai">AI</span>ONEX</a>
+  <a href="index.html" class="nav-back">← Zurück zur Website</a>
+</nav>
+
+<div class="page">
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="left-bg"></div>
+    <div class="left-content">
+      <div class="left-tag">Kostenloser KI-Check</div>
+      <h1 class="left-title">Dein Termin<br><span style="color:var(--orange);">wartet.</span></h1>
+      <p class="left-desc">30 Minuten. Kein Pitch, keine Verpflichtung. Wir schauen gemeinsam was KI für deinen Betrieb konkret bringt.</p>
+      <div class="left-checklist">
+        <div class="check-item"><span class="check-icon">✓</span><span>Wir analysieren dein aktuelles Setup</span></div>
+        <div class="check-item"><span class="check-icon">✓</span><span>Du siehst eine Live-Demo des KI-Bots</span></div>
+        <div class="check-item"><span class="check-icon">✓</span><span>Wir rechnen gemeinsam was du gewinnst</span></div>
+        <div class="check-item"><span class="check-icon">✓</span><span>Keine versteckten Kosten, 30 Tage gratis danach</span></div>
+      </div>
+    </div>
+    <div class="left-bottom">
+      <div class="duration-badge">
+        <span class="duration-dot"></span>
+        30 Minuten · Zoom oder Vor Ort · Kostenlos
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel" id="mainPanel">
+    <div class="section-label">Wunschtermin wählen</div>
+
+    <!-- Prefill summary (shown if coming from flow) -->
+    <div class="prefill-card" id="prefillCard" style="display:none;">
+      <div>
+        <div class="prefill-name" id="prefillName"></div>
+        <div class="prefill-info" id="prefillInfo"></div>
+      </div>
+      <button class="prefill-edit" onclick="window.history.back()">← Ändern</button>
+    </div>
+
+    <!-- Month nav -->
+    <div class="month-nav">
+      <button class="month-btn" id="prevBtn" onclick="changeMonth(-1)" disabled>‹</button>
+      <div class="month-title" id="monthTitle"></div>
+      <button class="month-btn" id="nextBtn" onclick="changeMonth(1)">›</button>
+    </div>
+
+    <!-- Calendar -->
+    <div class="cal-grid" id="calGrid"></div>
+
+    <!-- Time slots -->
+    <div class="slots-section" id="slotsSection">
+      <div class="slots-title" id="slotsTitle"></div>
+      <div class="slots-grid" id="slotsGrid"></div>
+    </div>
+
+    <!-- Confirm -->
+    <div class="confirm-section" id="confirmSection">
+      <div class="confirm-summary">
+        <div class="confirm-row">
+          <span class="confirm-label">Datum & Zeit</span>
+          <span class="confirm-value" id="confirmDateTime"></span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-label">Format</span>
+          <span class="confirm-value" id="confirmFormat"></span>
+        </div>
+        <div class="confirm-row">
+          <span class="confirm-label">Dauer</span>
+          <span class="confirm-value">30 Minuten</span>
+        </div>
+        <div class="confirm-row" id="confirmNameRow" style="display:none;">
+          <span class="confirm-label">Name</span>
+          <span class="confirm-value" id="confirmName"></span>
+        </div>
+        <div class="confirm-row" id="confirmEmailRow" style="display:none;">
+          <span class="confirm-label">E-Mail</span>
+          <span class="confirm-value" id="confirmEmail"></span>
+        </div>
+      </div>
+
+      <!-- Name/Email fields (shown if not prefilled) -->
+      <div id="extraFields" style="display:none; margin-bottom:24px;">
+        <input id="fieldName" type="text" placeholder="Dein Name" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--white);font-family:var(--font-mono);font-size:14px;padding:16px 20px;outline:none;margin-bottom:8px;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+        <input id="fieldEmail" type="email" placeholder="Deine E-Mail" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--white);font-family:var(--font-mono);font-size:14px;padding:16px 20px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+      </div>
+
+      <button class="confirm-btn" id="confirmBtn" onclick="submitBooking()">Termin bestätigen →</button>
+      <p class="confirm-note">
+        Du erhältst sofort eine Bestätigung per E-Mail.<br>
+        Mit der Buchung stimmst du unserer <a href="index.html#datenschutz">Datenschutzerklärung</a> zu.
+      </p>
+    </div>
+
+    <!-- Success -->
+    <div class="success-screen" id="successScreen">
+      <div class="success-icon">✅</div>
+      <h2 class="success-title">Gebucht!</h2>
+      <p class="success-desc">Dein KI-Check ist bestätigt. Schau in dein Postfach — du hast alle Details per E-Mail erhalten.</p>
+      <div class="success-detail" id="successDetail"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">Termin wird gebucht ...</div>
+</div>
+
+<script>
+  // --- STATE ---
+  const MAKE_WEBHOOK = 'https://hook.eu2.make.com/cuhuto7buzld4wbi6umlje8iw1x1axmk';
+  const BOOKED_SLOTS_URL = 'PLACEHOLDER_SHEET_CSV_URL';
+  let bookedSlots = []; // Format: ["2026-03-20T09:00", "2026-03-21T14:00"]
+  const DAYS = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+  const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+  // Available slots per weekday (Mon=1 ... Fri=5), weekend = no slots
+  const SLOT_TIMES = ['09:00','09:30','10:00','10:30','11:00','11:30','14:00','14:30','15:00','15:30','16:00','16:30'];
+
+  // Read URL params from flow
+  const params = new URLSearchParams(window.location.search);
+  const prefill = {
+    name: params.get('name') || '',
+    email: params.get('email') || '',
+    firma: params.get('firma') || '',
+    branche: params.get('branche') || '',
+    tel: params.get('tel') || '',
+    meeting: params.get('meeting') || ''
+  };
+
+  let currentDate = new Date();
+  currentDate.setDate(1);
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  let selectedDate = null;
+  let selectedTime = null;
+
+  async function loadBookedSlots() {
+    try {
+      const res = await fetch(BOOKED_SLOTS_URL);
+      const csv = await res.text();
+      bookedSlots = csv.trim().split('\n')
+        .slice(1)
+        .map(row => {
+          const [date, time] = row.split(',').map(s => s.trim().replace(/"/g, ''));
+          return date + 'T' + time;
+        })
+        .filter(s => s.length > 5);
+    } catch(e) {
+      bookedSlots = [];
+    }
+  }
+
+  // --- INIT ---
+  async function init() {
+    await loadBookedSlots();
+    // Show prefill card
+    if (prefill.name) {
+      document.getElementById('prefillCard').style.display = 'flex';
+      document.getElementById('prefillName').textContent = prefill.name + (prefill.firma ? ' · ' + prefill.firma : '');
+      document.getElementById('prefillInfo').textContent = [prefill.branche, prefill.meeting].filter(Boolean).join(' · ');
+    }
+    renderCalendar();
+  }
+
+  function renderCalendar() {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    document.getElementById('monthTitle').textContent = MONTHS[month] + ' ' + year;
+
+    // Prev button disabled if current month <= today's month
+    const todayFirst = new Date(today.getFullYear(), today.getMonth(), 1);
+    document.getElementById('prevBtn').disabled = currentDate <= todayFirst;
+
+    const grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+
+    // Day headers (Mon-Sun)
+    DAYS.forEach(d => {
+      const h = document.createElement('div');
+      h.className = 'cal-header';
+      h.textContent = d;
+      grid.appendChild(h);
+    });
+
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    // Monday-based: getDay() 0=Sun, need 0=Mon
+    let startOffset = firstDay.getDay() - 1;
+    if (startOffset < 0) startOffset = 6;
+
+    // Empty cells
+    for (let i = 0; i < startOffset; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'cal-day empty';
+      grid.appendChild(empty);
+    }
+
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      const dayDate = new Date(year, month, d);
+      const dow = dayDate.getDay(); // 0=Sun,6=Sat
+      const isPast = dayDate <= today;
+      const isWeekend = dow === 0 || dow === 6;
+      const cell = document.createElement('div');
+      cell.className = 'cal-day';
+
+      if (dayDate.getTime() === today.getTime()) cell.classList.add('today');
+      if (isPast || isWeekend) {
+        cell.classList.add('disabled');
+      } else {
+        cell.classList.add('has-slots');
+        cell.onclick = () => selectDate(dayDate, cell);
+        if (selectedDate && dayDate.getTime() === selectedDate.getTime()) cell.classList.add('selected');
+      }
+      cell.textContent = d;
+      grid.appendChild(cell);
+    }
+  }
+
+  function selectDate(date, cell) {
+    document.querySelectorAll('.cal-day').forEach(c => c.classList.remove('selected'));
+    cell.classList.add('selected');
+    selectedDate = date;
+    selectedTime = null;
+    renderSlots(date);
+    document.getElementById('confirmSection').classList.remove('visible');
+  }
+
+  function renderSlots(date) {
+    const section = document.getElementById('slotsSection');
+    const slotsGrid = document.getElementById('slotsGrid');
+    const title = document.getElementById('slotsTitle');
+
+    const opts = { weekday: 'long', day: 'numeric', month: 'long' };
+    title.textContent = date.toLocaleDateString('de-AT', opts);
+    slotsGrid.innerHTML = '';
+
+    const y = date.getFullYear(), m = String(date.getMonth() + 1).padStart(2, '0'), d = String(date.getDate()).padStart(2, '0');
+    const dateStr = y + '-' + m + '-' + d;
+    SLOT_TIMES.forEach(time => {
+      const slotKey = dateStr + 'T' + time;
+      const isBooked = bookedSlots.includes(slotKey);
+
+      const btn = document.createElement('button');
+      btn.className = 'slot-btn' + (isBooked ? ' taken' : '');
+      btn.textContent = isBooked ? time + ' ✓' : time;
+      if (!isBooked) btn.onclick = () => selectTime(time, btn);
+      else btn.disabled = true;
+      slotsGrid.appendChild(btn);
+    });
+
+    section.classList.add('visible');
+    section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function selectTime(time, btn) {
+    document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedTime = time;
+    renderConfirm();
+  }
+
+  function renderConfirm() {
+    const opts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    document.getElementById('confirmDateTime').textContent =
+      selectedDate.toLocaleDateString('de-AT', opts) + ' · ' + selectedTime + ' Uhr';
+
+    const format = prefill.meeting || 'Zoom / Video Call';
+    document.getElementById('confirmFormat').textContent = format;
+
+    if (prefill.name) {
+      document.getElementById('confirmNameRow').style.display = 'flex';
+      document.getElementById('confirmName').textContent = prefill.name;
+      document.getElementById('confirmEmailRow').style.display = 'flex';
+      document.getElementById('confirmEmail').textContent = prefill.email;
+      document.getElementById('extraFields').style.display = 'none';
+    } else {
+      document.getElementById('confirmNameRow').style.display = 'none';
+      document.getElementById('confirmEmailRow').style.display = 'none';
+      document.getElementById('extraFields').style.display = 'block';
+    }
+
+    document.getElementById('confirmSection').classList.add('visible');
+    document.getElementById('confirmSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  async function submitBooking() {
+    const name = prefill.name || document.getElementById('fieldName')?.value.trim();
+    const email = prefill.email || document.getElementById('fieldEmail')?.value.trim();
+
+    if (!name || !email) {
+      document.getElementById('fieldName').style.borderColor = 'var(--orange)';
+      document.getElementById('fieldEmail').style.borderColor = 'var(--orange)';
+      return;
+    }
+
+    const opts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    const dateStr = selectedDate.toLocaleDateString('de-AT', opts);
+
+    const payload = {
+      name,
+      email,
+      firma: prefill.firma || '',
+      branche: prefill.branche || '',
+      tel: prefill.tel || '',
+      meeting: prefill.meeting || 'Zoom / Video Call',
+      date: selectedDate.toISOString().split('T')[0],
+      time: selectedTime,
+      date_readable: dateStr + ' · ' + selectedTime + ' Uhr',
+      timestamp: new Date().toISOString()
+    };
+
+    document.getElementById('loadingOverlay').classList.add('active');
+
+    try {
+      await fetch(MAKE_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const newSlotKey = selectedDate.getFullYear() + '-' + String(selectedDate.getMonth() + 1).padStart(2, '0') + '-' + String(selectedDate.getDate()).padStart(2, '0') + 'T' + selectedTime;
+      bookedSlots.push(newSlotKey);
+    } catch(e) {}
+
+    setTimeout(() => {
+      document.getElementById('loadingOverlay').classList.remove('active');
+      showSuccess(payload);
+    }, 1800);
+  }
+
+  function showSuccess(payload) {
+    document.getElementById('mainPanel').innerHTML = `
+      <div class="success-screen visible">
+        <div class="success-icon">✅</div>
+        <h2 class="success-title">Gebucht!</h2>
+        <p class="success-desc">Dein KI-Check ist bestätigt. Du erhältst gleich eine Bestätigung an <strong>${payload.email}</strong>.</p>
+        <div class="success-detail">
+          <div><span style="color:var(--grey-text);">TERMIN</span> &nbsp; <strong>${payload.date_readable}</strong></div>
+          <div><span style="color:var(--grey-text);">FORMAT</span> &nbsp; <strong>${payload.meeting}</strong></div>
+          ${payload.meeting.includes('Zoom') ? '<div><span style="color:var(--grey-text);">ZOOM-LINK</span> &nbsp; <strong>Kommt per E-Mail</strong></div>' : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  function changeMonth(dir) {
+    currentDate.setMonth(currentDate.getMonth() + dir);
+    selectedDate = null;
+    selectedTime = null;
+    document.getElementById('slotsSection').classList.remove('visible');
+    document.getElementById('confirmSection').classList.remove('visible');
+    renderCalendar();
+  }
+
+  init(); // async - no await at top level
+</script>
+</body>
+</html>

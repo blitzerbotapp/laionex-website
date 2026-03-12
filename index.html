@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laionex – Dein digitaler Mitarbeiter für Österreich</title>
+
+<!-- SEO -->
+<meta name="description" content="Laionex – KI-Agentur für Betriebe in Österreich. Dein digitaler Mitarbeiter: KI-Telefonbot, WhatsApp-Chatbot, Google Review Automation. 30 Tage kostenlos testen.">
+<meta name="keywords" content="KI Agentur Österreich, KI Telefonbot, AI Chatbot, Google Reviews, Handwerker KI, Digitalisierung Tirol">
+<meta name="author" content="Lorenz Vötter – Laionex">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://laionex.at/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://laionex.at/">
+<meta property="og:title" content="Laionex – Dein digitaler Mitarbeiter für Österreich">
+<meta property="og:description" content="KI-Telefonbot, Chatbot & Review Automation für Betriebe. 30 Tage kostenlos testen.">
+<meta property="og:image" content="https://laionex.at/og-image.jpg">
+<meta property="og:locale" content="de_AT">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Laionex – KI-Agentur Österreich">
+<meta name="twitter:description" content="Dein digitaler Mitarbeiter: Telefonbot, Chatbot, Reviews. 30 Tage kostenlos.">
+<meta name="twitter:image" content="https://laionex.at/og-image.jpg">
+
+<!-- Favicon -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230a0a0a'/><text y='78' x='6' font-size='72' font-family='monospace' font-weight='900' fill='%23ff4d00'>L</text></svg>">
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    scroll-padding-top: 80px;
+    --black: #0a0a0a;
+    --white: #f5f2ed;
+    --orange: #ff4d00;
+    --orange-dim: #cc3d00;
+    --grey: #1a1a1a;
+    --grey-mid: #2e2e2e;
+    --grey-text: #888;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--black); color: var(--white); font-family: var(--font-body); font-weight: 400; overflow-x: hidden; cursor: none; }
+
+  /* ── CURSOR (desktop only) ── */
+  .cursor { position: fixed; width: 12px; height: 12px; background: var(--orange); border-radius: 50%; pointer-events: none; z-index: 9999; transform: translate(-50%,-50%); transition: width 0.2s, height 0.2s; }
+  .cursor-ring { position: fixed; width: 36px; height: 36px; border: 1px solid rgba(255,77,0,0.4); border-radius: 50%; pointer-events: none; z-index: 9998; transform: translate(-50%,-50%); transition: width 0.3s, height 0.3s; }
+  @media (hover: none), (max-width: 768px) { .cursor, .cursor-ring { display: none !important; } body { cursor: auto; } }
+
+  /* ── NAV ── */
+  nav { position: fixed; top: 0; left: 0; right: 0; z-index: 500; display: flex; align-items: center; justify-content: space-between; padding: 24px 48px; border-bottom: 1px solid rgba(255,255,255,0.04); background: rgba(10,10,10,0.92); backdrop-filter: blur(12px); }
+  .nav-logo { font-family: var(--font-display); font-size: 28px; letter-spacing: 3px; color: var(--white); text-decoration: none; }
+  .nav-logo .ai { color: var(--orange); }
+  .nav-links { display: flex; gap: 40px; align-items: center; }
+  .nav-links a { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--grey-text); text-decoration: none; transition: color 0.2s; cursor: none; }
+  .nav-links a:hover { color: var(--white); }
+  .nav-cta { background: var(--orange); color: var(--black) !important; padding: 10px 24px; }
+  .nav-cta:hover { background: var(--orange-dim) !important; }
+
+  /* Hamburger */
+  .nav-burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 4px; background: none; border: none; }
+  .nav-burger span { display: block; width: 24px; height: 2px; background: var(--white); transition: all 0.3s; }
+  .nav-burger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .nav-burger.open span:nth-child(2) { opacity: 0; }
+  .nav-burger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+  /* Mobile nav overlay */
+  .mobile-nav { display: none; position: fixed; inset: 0; background: var(--black); z-index: 400; flex-direction: column; align-items: center; justify-content: center; gap: 40px; }
+  .mobile-nav.open { display: flex; }
+  .mobile-nav a { font-family: var(--font-display); font-size: 48px; letter-spacing: 4px; text-transform: uppercase; color: var(--white); text-decoration: none; transition: color 0.2s; }
+  .mobile-nav a:hover { color: var(--orange); }
+  .mobile-nav .mobile-cta { background: var(--orange); color: var(--black); padding: 16px 48px; font-size: 36px; }
+
+  /* ── HERO ── */
+  .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: flex-end; padding: 0 48px 80px; position: relative; overflow: hidden; }
+  .hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 80% 60% at 70% 40%, rgba(255,77,0,0.06) 0%, transparent 70%); }
+  .hero-grid { position: absolute; inset: 0; background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px); background-size: 80px 80px; }
+  .hero-tag { font-family: var(--font-mono); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--orange); margin-bottom: 32px; display: flex; align-items: center; gap: 12px; }
+  .hero-tag::before { content: ''; width: 32px; height: 1px; background: var(--orange); }
+  .hero-title { font-family: var(--font-display); font-size: clamp(64px, 9vw, 140px); line-height: 0.92; text-transform: uppercase; margin-bottom: 48px; position: relative; z-index: 1; }
+  .hero-title .outline { -webkit-text-stroke: 1px rgba(255,255,255,0.18); color: transparent; }
+  .hero-title .accent { color: var(--orange); }
+  .hero-bottom { display: flex; align-items: flex-end; justify-content: space-between; position: relative; z-index: 1; }
+  .hero-sub { font-size: 17px; line-height: 1.6; color: rgba(245,242,237,0.55); max-width: 420px; font-weight: 300; }
+  .hero-actions { display: flex; flex-direction: column; align-items: flex-end; gap: 16px; }
+  .btn-primary { display: inline-block; background: var(--orange); color: var(--black); font-family: var(--font-mono); font-size: 13px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; padding: 18px 40px; transition: background 0.2s, transform 0.2s; cursor: none; border: none; }
+  .btn-primary:hover { background: var(--orange-dim); transform: translateY(-2px); }
+  .hero-note { font-family: var(--font-mono); font-size: 11px; color: var(--grey-text); letter-spacing: 0.5px; }
+
+  /* ── TICKER ── */
+  .ticker { border-top: 1px solid var(--grey-mid); border-bottom: 1px solid var(--grey-mid); padding: 16px 0; overflow: hidden; background: var(--grey); }
+  .ticker-inner { display: flex; gap: 80px; animation: ticker 20s linear infinite; white-space: nowrap; }
+  .ticker-item { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--grey-text); display: flex; align-items: center; gap: 20px; flex-shrink: 0; }
+  .ticker-dot { width: 4px; height: 4px; background: var(--orange); border-radius: 50%; }
+  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+  /* ── TRUST BAR ── */
+  .trust-bar { padding: 24px 48px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; gap: 64px; flex-wrap: wrap; }
+  .trust-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; color: #333; text-transform: uppercase; }
+  .trust-items { display: flex; align-items: center; gap: 48px; flex-wrap: wrap; justify-content: center; }
+  .trust-item { font-family: var(--font-mono); font-size: 12px; color: #444; letter-spacing: 1px; transition: color 0.3s; }
+  .trust-item:hover { color: #666; }
+
+  /* ── SECTIONS ── */
+  .section { padding: 120px 48px; }
+  .section-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--orange); margin-bottom: 48px; display: flex; align-items: center; gap: 16px; }
+  .section-label::after { content: ''; flex: 1; max-width: 60px; height: 1px; background: var(--orange); opacity: 0.4; }
+  .section-title { font-family: var(--font-display); font-size: clamp(48px, 6vw, 80px); line-height: 0.95; text-transform: uppercase; margin-bottom: 64px; }
+
+  /* ── PROBLEM ── */
+  .problem-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+  .problem-card { background: var(--grey); padding: 48px; position: relative; overflow: hidden; transition: background 0.3s; }
+  .problem-card:hover { background: var(--grey-mid); }
+  .problem-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 0; background: var(--orange); transition: height 0.4s ease; }
+  .problem-card:hover::before { height: 100%; }
+  .problem-number { font-family: var(--font-display); font-size: 80px; color: rgba(255,255,255,0.04); position: absolute; top: 20px; right: 30px; line-height: 1; }
+  .problem-icon { font-size: 32px; margin-bottom: 24px; }
+  .problem-title { font-family: var(--font-display); font-size: 28px; letter-spacing: 1px; margin-bottom: 16px; text-transform: uppercase; }
+  .problem-text { font-size: 15px; line-height: 1.7; color: rgba(245,242,237,0.55); }
+
+  /* ── FEATURES ── */
+  .product-section { padding: 120px 48px; background: var(--grey); }
+  .product-header { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: end; margin-bottom: 80px; }
+  .big-title { font-family: var(--font-display); font-size: clamp(48px, 6vw, 88px); line-height: 0.95; text-transform: uppercase; }
+  .big-title .outline { -webkit-text-stroke: 1px rgba(255,255,255,0.2); color: transparent; }
+  .product-intro { font-size: 17px; line-height: 1.7; color: rgba(245,242,237,0.6); font-weight: 300; }
+  .features-list { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+  .feature-card { background: var(--black); padding: 48px 40px; transition: transform 0.3s; }
+  .feature-card:hover { transform: translateY(-4px); }
+  .feature-num { font-family: var(--font-mono); font-size: 11px; color: var(--orange); letter-spacing: 2px; margin-bottom: 32px; }
+  .feature-icon-wrap { width: 56px; height: 56px; border: 1px solid var(--grey-mid); display: flex; align-items: center; justify-content: center; font-size: 24px; margin-bottom: 28px; transition: border-color 0.3s, background 0.3s; }
+  .feature-card:hover .feature-icon-wrap { border-color: var(--orange); background: rgba(255,77,0,0.08); }
+  .feature-title { font-family: var(--font-display); font-size: 26px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+  .feature-desc { font-size: 14px; line-height: 1.7; color: rgba(245,242,237,0.5); }
+
+  /* ── PRICING ── */
+  .pricing-section { padding: 120px 48px; }
+  .text-center { text-align: center; }
+  .price-card { background: var(--grey); padding: 56px 48px; position: relative; }
+  .price-badge { font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; background: rgba(255,77,0,0.12); color: var(--orange); display: inline-block; padding: 6px 14px; margin-bottom: 32px; }
+  .price-divider { height: 1px; background: rgba(255,255,255,0.08); margin-bottom: 32px; }
+  .btn-secondary { display: block; border: 1px solid rgba(255,255,255,0.15); color: var(--white); font-family: var(--font-mono); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; text-decoration: none; padding: 16px 32px; text-align: center; transition: border-color 0.2s, background 0.2s; cursor: none; }
+  .btn-secondary:hover { border-color: var(--orange); background: rgba(255,77,0,0.08); }
+  .pricing-note { text-align: center; font-family: var(--font-mono); font-size: 11px; color: var(--grey-text); margin-top: 40px; letter-spacing: 1px; }
+
+  /* ── PROCESS ── */
+  .process-section { padding: 120px 48px; background: var(--grey); }
+  .process-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2px; }
+  .process-step { background: var(--black); padding: 48px 36px; }
+  .step-num { font-family: var(--font-display); font-size: 64px; color: rgba(255,77,0,0.15); line-height: 1; margin-bottom: 24px; }
+  .step-title { font-family: var(--font-display); font-size: 24px; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+  .step-desc { font-size: 14px; line-height: 1.7; color: rgba(245,242,237,0.5); }
+
+  /* ── FLOW MODAL ── */
+  .flow-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; backdrop-filter: blur(8px); align-items: center; justify-content: center; padding: 24px; }
+  .flow-overlay.active { display: flex; }
+  .flow-modal { background: #111; border: 1px solid rgba(255,77,0,0.2); max-width: 560px; width: 100%; padding: 56px 48px; position: relative; max-height: 90vh; overflow-y: auto; }
+  .flow-close { position: absolute; top: 20px; right: 24px; background: none; border: none; color: var(--grey-text); font-size: 20px; cursor: pointer; font-family: var(--font-mono); transition: color 0.2s; }
+  .flow-close:hover { color: var(--white); }
+  .flow-progress { display: flex; gap: 6px; margin-bottom: 40px; }
+  .flow-dot { height: 2px; flex: 1; background: rgba(255,255,255,0.1); transition: background 0.4s; }
+  .flow-dot.done { background: var(--orange); }
+  .flow-step { display: none; }
+  .flow-step.active { display: block; }
+  .flow-step-num { font-family: var(--font-mono); font-size: 11px; letter-spacing: 3px; color: var(--orange); text-transform: uppercase; margin-bottom: 12px; }
+  .flow-question { font-family: var(--font-display); font-size: clamp(28px, 4vw, 40px); text-transform: uppercase; line-height: 1; margin-bottom: 32px; }
+  .flow-input { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--white); font-family: var(--font-mono); font-size: 14px; padding: 16px 20px; outline: none; transition: border-color 0.2s; box-sizing: border-box; }
+  .flow-input:focus { border-color: var(--orange); }
+  .flow-input::placeholder { color: rgba(255,255,255,0.25); }
+  .flow-choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .flow-choice { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: var(--grey-text); font-family: var(--font-mono); font-size: 12px; letter-spacing: 1px; padding: 20px 16px; cursor: pointer; transition: all 0.2s; text-align: left; text-transform: uppercase; }
+  .flow-choice:hover, .flow-choice.selected { border-color: var(--orange); color: var(--white); background: rgba(255,77,0,0.08); }
+  .flow-choice .choice-icon { font-size: 24px; display: block; margin-bottom: 10px; }
+  .flow-next { margin-top: 24px; background: var(--orange); color: var(--black); font-family: var(--font-mono); font-size: 13px; letter-spacing: 2px; text-transform: uppercase; border: none; padding: 16px 36px; cursor: pointer; font-weight: 700; transition: all 0.2s; width: 100%; }
+  .flow-next:hover { background: var(--orange-dim); }
+  .flow-next:disabled { opacity: 0.3; cursor: not-allowed; }
+  .flow-success { text-align: center; padding: 20px 0; }
+  .flow-success-icon { font-size: 48px; margin-bottom: 20px; }
+  .flow-success h3 { font-family: var(--font-display); font-size: 40px; text-transform: uppercase; margin-bottom: 12px; }
+  .flow-success p { color: var(--grey-text); font-size: 15px; line-height: 1.7; margin-bottom: 32px; }
+  .flow-cal-btn { display: inline-block; background: var(--orange); color: var(--black); font-family: var(--font-mono); font-size: 13px; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; padding: 18px 40px; font-weight: 700; transition: all 0.2s; }
+  .flow-cal-btn:hover { background: var(--orange-dim); transform: translateY(-2px); }
+
+  /* ── DEMO ── */
+  .demo-section { padding: 120px 48px; background: var(--black); }
+  .demo-inner { max-width: 900px; margin: 0 auto; }
+  .demo-card { background: var(--grey); border: 1px solid rgba(255,77,0,0.25); border-radius: 4px; padding: 64px; display: flex; gap: 64px; align-items: center; }
+  .demo-left { flex: 1; }
+  .demo-title { font-family: var(--font-display); font-size: clamp(36px, 5vw, 60px); line-height: 0.95; text-transform: uppercase; margin-bottom: 24px; }
+  .demo-desc { font-size: 16px; color: var(--grey-text); line-height: 1.7; margin-bottom: 40px; }
+  .demo-number { font-family: var(--font-mono); font-size: 13px; letter-spacing: 2px; color: var(--orange); margin-bottom: 8px; }
+  .demo-call-btn { display: inline-flex; align-items: center; gap: 12px; background: var(--orange); color: var(--black); font-family: var(--font-mono); font-size: 13px; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; padding: 18px 36px; font-weight: 700; transition: all 0.2s; }
+  .demo-call-btn:hover { background: var(--orange-dim); transform: translateY(-2px); }
+  .demo-pulse { width: 12px; height: 12px; background: var(--black); border-radius: 50%; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.7; } }
+  .demo-right { flex: 0 0 220px; text-align: center; }
+  .demo-visual { width: 180px; height: 180px; border: 1px solid rgba(255,77,0,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; position: relative; }
+  .demo-visual::before { content: ''; position: absolute; inset: -8px; border: 1px solid rgba(255,77,0,0.1); border-radius: 50%; animation: spin 8s linear infinite; border-top-color: var(--orange); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .demo-phone-icon { font-size: 48px; }
+  .demo-live { font-family: var(--font-mono); font-size: 11px; letter-spacing: 3px; color: var(--orange); text-transform: uppercase; }
+
+  /* ── FAQ ── */
+  .faq-section { padding: 120px 48px; }
+  .faq-inner { max-width: 800px; margin: 0 auto; }
+  .faq-list { display: flex; flex-direction: column; gap: 2px; }
+  .faq-item { border-bottom: 1px solid rgba(255,255,255,0.08); }
+  .faq-question { width: 100%; background: none; border: none; color: var(--white); font-family: var(--font-mono); font-size: 14px; letter-spacing: 1px; text-align: left; padding: 28px 0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; gap: 20px; transition: color 0.2s; }
+  .faq-question:hover { color: var(--orange); }
+  .faq-icon { font-size: 20px; color: var(--orange); transition: transform 0.3s; flex-shrink: 0; font-style: normal; }
+  .faq-item.open .faq-icon { transform: rotate(45deg); }
+  .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.3s; }
+  .faq-item.open .faq-answer { max-height: 300px; padding-bottom: 24px; }
+  .faq-answer p { color: var(--grey-text); font-size: 15px; line-height: 1.8; }
+
+  /* ── CTA ── */
+  .cta-section { padding: 160px 48px; text-align: center; position: relative; overflow: hidden; }
+  .cta-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(255,77,0,0.08) 0%, transparent 70%); }
+  .cta-title { font-family: var(--font-display); font-size: clamp(60px, 10vw, 160px); line-height: 0.9; text-transform: uppercase; position: relative; z-index: 1; margin-bottom: 40px; }
+  .cta-sub { font-size: 18px; line-height: 1.6; color: rgba(245,242,237,0.55); max-width: 480px; margin: 0 auto 48px; font-weight: 300; position: relative; z-index: 1; }
+  .cta-actions { position: relative; z-index: 1; }
+
+  /* ── FOOTER ── */
+  footer { padding: 48px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between; }
+  .footer-logo span { color: var(--orange); }
+  .footer-text { font-family: var(--font-mono); font-size: 11px; color: var(--grey-text); letter-spacing: 1px; }
+  .footer-text a { color: var(--grey-text); text-decoration: none; transition: color 0.2s; }
+  .footer-text a:hover { color: var(--white); }
+
+  /* ── REVEAL ── */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .reveal.visible { opacity: 1; transform: none; }
+
+  /* ── COOKIE BANNER ── */
+  #cookieBanner { position: fixed; bottom: 0; left: 0; right: 0; background: #111; border-top: 1px solid #222; padding: 16px 32px; display: none; align-items: center; justify-content: space-between; gap: 16px; z-index: 9000; }
+  .cookie-text { font-family: var(--font-mono); font-size: 11px; color: var(--grey-text); line-height: 1.6; }
+  .cookie-text a { color: var(--orange); text-decoration: none; }
+  .cookie-btn { background: var(--orange); color: var(--black); border: none; padding: 10px 24px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; cursor: pointer; white-space: nowrap; text-transform: uppercase; flex-shrink: 0; }
+
+  /* ── MOBILE RESPONSIVE ── */
+  @media (max-width: 768px) {
+    /* Nav */
+    nav { padding: 18px 24px; }
+    .nav-links { display: none; }
+    .nav-burger { display: flex; }
+
+    /* Hero */
+    .hero { padding: 0 24px 60px; min-height: 100svh; }
+    .hero-title { font-size: clamp(56px, 14vw, 100px); }
+    .hero-bottom { flex-direction: column; align-items: flex-start; gap: 32px; }
+    .hero-actions { align-items: flex-start; }
+    .hero-sub { font-size: 15px; max-width: 100%; }
+
+    /* Trust bar */
+    .trust-bar { gap: 24px; padding: 20px 24px; }
+    .trust-items { gap: 24px; }
+    .trust-label { display: none; }
+
+    /* Sections */
+    .section { padding: 64px 24px; }
+    .product-section { padding: 64px 24px; }
+    .pricing-section { padding: 64px 24px; }
+    .process-section { padding: 64px 24px; }
+    .demo-section { padding: 64px 24px; }
+    .faq-section { padding: 64px 24px; }
+    .cta-section { padding: 80px 24px; }
+
+    /* Grids */
+    .problem-grid { grid-template-columns: 1fr; }
+    .features-list { grid-template-columns: 1fr; }
+    .product-header { grid-template-columns: 1fr; gap: 32px; }
+    .process-steps { grid-template-columns: 1fr; }
+
+    /* Problem cards */
+    .problem-card { padding: 32px 28px; }
+
+    /* Feature cards */
+    .feature-card { padding: 36px 28px; }
+    .feature-card[style*="grid-column: span 2"] { grid-column: span 1 !important; }
+    .feature-result { grid-column: span 1 !important; }
+
+    /* Pricing */
+    .price-card { padding: 36px 28px; }
+    .price-card, .pricing-card { flex-direction: column; text-align: left; }
+    .price-card > div[style*="flex"] { flex-direction: column; align-items: flex-start !important; }
+    .price-card div[style*="text-align: right"] { text-align: left !important; }
+
+    /* Process */
+    .process-step { padding: 36px 28px; }
+
+    /* Demo */
+    .demo-card { flex-direction: column; padding: 40px 28px; gap: 40px; }
+    .demo-right { display: none; }
+
+    /* CTA */
+    .cta-title { font-size: clamp(48px, 14vw, 80px); }
+
+    /* Footer */
+    footer { flex-direction: column; gap: 16px; padding: 32px 24px; text-align: center; }
+    .footer-text { text-align: center; line-height: 2; }
+
+    /* Flow modal */
+    .flow-modal { padding: 40px 28px; }
+
+    /* Cookie */
+    #cookieBanner { flex-direction: column; align-items: flex-start; padding: 16px 24px; gap: 12px; }
+
+    /* Impressum/Datenschutz sections */
+    #impressum, #datenschutz { padding: 60px 24px !important; }
+    #impressum > div:first-child, #datenschutz > div:first-child { flex-direction: column; gap: 16px; align-items: flex-start !important; }
+  }
+
+  @media (max-width: 480px) {
+    .hero-title { font-size: 52px; }
+    .section-title { font-size: 40px; }
+    .cta-title { font-size: 44px; }
+    .process-steps { grid-template-columns: 1fr; }
+    .flow-choice-grid { grid-template-columns: 1fr; }
+    .trust-items { gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Mobile Nav Overlay -->
+<div class="mobile-nav" id="mobileNav">
+  <a href="#leistungen" onclick="closeMobileNav()">Leistungen</a>
+  <a href="#demo" onclick="closeMobileNav()">Demo</a>
+  <a href="#pricing" onclick="closeMobileNav()">Preise</a>
+  <a href="#faq" onclick="closeMobileNav()">FAQ</a>
+  <a href="#kontakt" class="mobile-cta" onclick="closeMobileNav(); openFlow();">KI-Check buchen</a>
+</div>
+
+<nav>
+  <a href="#" class="nav-logo">L<span class="ai">AI</span>ONEX</a>
+  <div class="nav-links">
+    <a href="#leistungen">Leistungen</a>
+    <a href="#demo">Demo</a>
+    <a href="#pricing">Preise</a>
+    <a href="#faq">FAQ</a>
+    <a href="#kontakt" class="nav-cta" onclick="event.preventDefault(); openFlow();">KI-Check buchen</a>
+  </div>
+  <button class="nav-burger" id="navBurger" onclick="toggleMobileNav()" aria-label="Menü">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-tag">KI-Agentur für Betriebe · Österreich</div>
+  <h1 class="hero-title">
+    Kein Auftrag<br>
+    <span class="outline">mehr</span><br>
+    <span class="accent">verpassen.</span>
+  </h1>
+  <div class="hero-bottom">
+    <p class="hero-sub">Dein digitaler Mitarbeiter — nimmt Anrufe an, sammelt Google Reviews, chattet mit Kunden. 24/7. Ohne Krankenstand.</p>
+    <div class="hero-actions">
+      <button onclick="openFlow()" class="btn-primary">Kostenlosen KI-Check buchen →</button>
+      <span class="hero-note">30 Tage kostenlos testen · Monatlich kündbar</span>
+    </div>
+  </div>
+</section>
+
+<div class="ticker">
+  <div class="ticker-inner">
+    <div class="ticker-item"><div class="ticker-dot"></div>Handwerk</div>
+    <div class="ticker-item"><div class="ticker-dot"></div>Gastronomie</div>
+    <div class="ticker-item"><div class="ticker-dot"></div>Hotels</div>
+    <div class="ticker-item"><div class="ticker-dot"></div>Kosmetik & Beauty</div>
+    <div class="ticker-item"><div class="ticker-dot"></div>Autowerkstätten</div>
+    <div class="ticker-item"><div class="ticker-dot"></div>Dienstleister aller Art</div>
+    <div class="ticker-item"><div class="ticker-dot"></div>Handwerk</div>
+    <div class="ticker-item"><div class="ticker-dot"></div>Gastronomie</div>
+    <div class="ticker-item"><div class="ticker-dot"></div>Hotels</div>
+    <div class="ticker-item"><div class="ticker-dot"></div>Kosmetik & Beauty</div>
+    <div class="ticker-item"><div class="ticker-dot"></div>Autowerkstätten</div>
+    <div class="ticker-item"><div class="ticker-dot"></div>Dienstleister aller Art</div>
+  </div>
+</div>
+
+<!-- Trust Bar -->
+<div class="trust-bar">
+  <span class="trust-label">Technologie</span>
+  <div class="trust-items">
+    <span class="trust-item">fonio.ai</span>
+    <span class="trust-item">Voiceflow</span>
+    <span class="trust-item">Make.com</span>
+    <span class="trust-item">Twilio</span>
+    <span class="trust-item">n8n</span>
+    <span class="trust-item">GitHub Pages</span>
+  </div>
+</div>
+
+<section class="section" id="probleme">
+  <div class="section-label">Das Problem</div>
+  <div class="problem-grid">
+    <div class="problem-card reveal">
+      <div class="problem-number">01</div>
+      <div class="problem-icon">📵</div>
+      <h3 class="problem-title">Verpasste Anrufe</h3>
+      <p class="problem-text">Du bist beschäftigt. Das Telefon klingelt. Niemand geht ran. Der Kunde ruft den Nächsten an. Ein Auftrag weg — für immer.</p>
+    </div>
+    <div class="problem-card reveal">
+      <div class="problem-number">02</div>
+      <div class="problem-icon">⭐</div>
+      <h3 class="problem-title">Zu wenig Reviews</h3>
+      <p class="problem-text">Deine Leistung ist top — aber online sieht es niemand. Konkurrenten mit 200 Reviews gewinnen den Kunden, obwohl deine Qualität besser ist.</p>
+    </div>
+    <div class="problem-card reveal">
+      <div class="problem-number">03</div>
+      <div class="problem-icon">🌐</div>
+      <h3 class="problem-title">Schwache Online-Präsenz</h3>
+      <p class="problem-text">Heute sucht jeder zuerst online. Keine oder schlechte Website bedeutet: potenzielle Kunden finden dich einfach nicht.</p>
+    </div>
+    <div class="problem-card reveal">
+      <div class="problem-number">04</div>
+      <div class="problem-icon">🕐</div>
+      <h3 class="problem-title">Keine Zeit</h3>
+      <p class="problem-text">Du hast keine Kapazität um Anfragen zu beantworten, Termine zu koordinieren und Kunden nachzufassen. Das kostet dich täglich Umsatz.</p>
+    </div>
+  </div>
+</section>
+
+<section class="product-section" id="leistungen">
+  <div class="product-header">
+    <div>
+      <div class="section-label">Die Lösung</div>
+      <h2 class="big-title">Dein digitaler<br><span class="outline">Mitarbeiter.</span></h2>
+    </div>
+    <p class="product-intro">Ein System aus vier Komponenten das rund um die Uhr für dich arbeitet — egal ob Handwerk, Gastronomie, Hotel oder Dienstleistung. Einmal einrichten, dauerhaft profitieren.</p>
+  </div>
+  <div class="features-list">
+    <div class="feature-card reveal">
+      <div class="feature-num">01 / 04</div>
+      <div class="feature-icon-wrap">📞</div>
+      <h3 class="feature-title">KI-Telefonbot</h3>
+      <p class="feature-desc">Nimmt jeden Anruf entgegen den du verpasst. Beantwortet Fragen, bucht Termine, nimmt Rückrufwünsche auf und schickt dir sofort eine Nachricht. Kein Auftrag geht mehr verloren.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-num">02 / 04</div>
+      <div class="feature-icon-wrap">💬</div>
+      <h3 class="feature-title">WhatsApp & Chatbot</h3>
+      <p class="feature-desc">Beantwortet Kundenanfragen auf deiner Website und per WhatsApp — 24/7. Qualifiziert automatisch ob jemand wirklich Kunde werden will und leitet dringende Sachen sofort weiter.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-num">03 / 04</div>
+      <div class="feature-icon-wrap">⭐</div>
+      <h3 class="feature-title">Google Review System</h3>
+      <p class="feature-desc">Nach jedem Auftrag bekommt dein Kunde automatisch eine SMS. Schlechte Bewertungen werden abgefangen — nur zufriedene landen auf Google. Mehr Reviews, besserer Ruf, mehr Kunden.</p>
+    </div>
+    <div class="feature-card reveal">
+      <div class="feature-num">04 / 04</div>
+      <div class="feature-icon-wrap">🌐</div>
+      <h3 class="feature-title">Moderne Website</h3>
+      <p class="feature-desc">Professionelle Website mit Terminbutton, Anruf-Button und WhatsApp — die dein gesamtes System verstärkt und Kunden direkt konvertiert.</p>
+    </div>
+    <div class="feature-card feature-result reveal" style="background: rgba(255,77,0,0.05); border: 1px solid rgba(255,77,0,0.12); grid-column: span 2;">
+      <div style="display: flex; align-items: center; gap: 48px; flex-wrap: wrap;">
+        <div>
+          <div class="feature-num" style="margin-bottom: 12px;">Das Ergebnis</div>
+          <h3 class="feature-title" style="font-size: 32px;">Nie wieder ein verpasster Auftrag.</h3>
+        </div>
+        <p class="feature-desc" style="max-width: 360px; font-size: 15px;">Ein System das rund um die Uhr für dich arbeitet. Deine Konkurrenz schläft noch.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pricing-section" id="pricing">
+  <div class="section-label" style="justify-content: center;">Investition</div>
+  <h2 class="section-title text-center reveal">Transparent.<br>Fair. Klar.</h2>
+
+  <div style="max-width: 960px; margin: 0 auto;">
+    <div class="price-card reveal" style="margin-bottom: 2px;">
+      <div style="display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 40px;">
+        <div style="flex: 1; min-width: 240px;">
+          <div class="price-badge" style="margin-bottom: 20px;">Komplettpaket</div>
+          <h3 style="font-family: var(--font-display); font-size: clamp(32px, 5vw, 56px); line-height: 0.95; text-transform: uppercase; margin-bottom: 16px;">Dein digitaler<br>Mitarbeiter.</h3>
+          <p style="color: var(--grey-text); font-size: 15px; line-height: 1.7; max-width: 380px;">Alles in einem Paket. Telefonbot, Chatbot, Review-System und Website. Keine versteckten Kosten.</p>
+        </div>
+        <div style="flex-shrink: 0;">
+          <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; color: var(--orange); text-transform: uppercase; margin-bottom: 8px;">KI-Telefon ab</div>
+          <div style="font-family: var(--font-display); font-size: clamp(48px, 8vw, 88px); line-height: 0.9; color: var(--white);">0,20<span style="font-size: 40px;">€</span></div>
+          <div style="font-family: var(--font-mono); font-size: 12px; color: var(--grey-text); letter-spacing: 1px;">pro Minute</div>
+        </div>
+      </div>
+      <div class="price-divider" style="margin: 40px 0;"></div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 16px; margin-bottom: 40px;">
+        <div style="display: flex; align-items: flex-start; gap: 12px;"><span style="color: var(--orange); font-size: 16px; margin-top: 2px;">✓</span><div><div style="font-family: var(--font-mono); font-size: 12px; color: var(--white); letter-spacing: 1px;">KI-Telefonbot</div><div style="font-size: 13px; color: var(--grey-text);">24/7, kein Auftrag verpasst</div></div></div>
+        <div style="display: flex; align-items: flex-start; gap: 12px;"><span style="color: var(--orange); font-size: 16px; margin-top: 2px;">✓</span><div><div style="font-family: var(--font-mono); font-size: 12px; color: var(--white); letter-spacing: 1px;">WhatsApp & Chatbot</div><div style="font-size: 13px; color: var(--grey-text);">Website & WhatsApp automatisiert</div></div></div>
+        <div style="display: flex; align-items: flex-start; gap: 12px;"><span style="color: var(--orange); font-size: 16px; margin-top: 2px;">✓</span><div><div style="font-family: var(--font-mono); font-size: 12px; color: var(--white); letter-spacing: 1px;">Google Reviews</div><div style="font-size: 13px; color: var(--grey-text);">Automatisch mehr Bewertungen</div></div></div>
+        <div style="display: flex; align-items: flex-start; gap: 12px;"><span style="color: var(--orange); font-size: 16px; margin-top: 2px;">✓</span><div><div style="font-family: var(--font-mono); font-size: 12px; color: var(--white); letter-spacing: 1px;">Moderne Website</div><div style="font-size: 13px; color: var(--grey-text);">Professionell & konversionsstark</div></div></div>
+      </div>
+      <div style="display: flex; align-items: center; gap: 20px; flex-wrap: wrap;">
+        <button onclick="openFlow()" class="btn-primary">30 Tage kostenlos testen →</button>
+        <span style="font-family: var(--font-mono); font-size: 11px; color: var(--grey-text); letter-spacing: 1px;">Monatlich kündbar · Einmalige Setup-Fee</span>
+      </div>
+    </div>
+
+    <div class="price-card reveal" style="background: rgba(255,77,0,0.04); border: 1px solid rgba(255,77,0,0.15); padding: 40px 48px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px;">
+      <div>
+        <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; color: var(--orange); text-transform: uppercase; margin-bottom: 10px;">Individuelle Lösung</div>
+        <h4 style="font-family: var(--font-display); font-size: 28px; text-transform: uppercase; margin-bottom: 8px;">Nur bestimmte Teile gewünscht?</h4>
+        <p style="color: var(--grey-text); font-size: 14px; max-width: 480px;">Nur den Telefonbot? Oder nur das Review-System? Kein Problem — wir bauen was zu dir passt.</p>
+      </div>
+      <button onclick="openFlow()" class="btn-secondary" style="flex-shrink: 0;">Anfrage stellen →</button>
+    </div>
+  </div>
+
+  <p class="pricing-note reveal" style="margin-top: 40px;">30 Tage kostenlos testen · Keine versteckten Kosten · Monatlich kündbar · Preis auf Anfrage</p>
+</section>
+
+<section class="process-section" id="ablauf">
+  <div class="section-label">So läuft es ab</div>
+  <h2 class="section-title reveal">In 4 Schritten<br><span style="-webkit-text-stroke: 1px rgba(255,255,255,0.2); color: transparent;">live.</span></h2>
+  <div class="process-steps">
+    <div class="process-step reveal">
+      <div class="step-num">01</div>
+      <h3 class="step-title">KI-Check</h3>
+      <p class="step-desc">Kostenloser 30-Minuten Check — vor Ort oder per Zoom. Wir schauen gemeinsam wo KI bei dir am meisten bringt.</p>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-num">02</div>
+      <h3 class="step-title">Setup</h3>
+      <p class="step-desc">Wir richten alles ein — Telefonbot, Chatbot, Review-System, Website. Du musst nur kurz deine Infos geben.</p>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-num">03</div>
+      <h3 class="step-title">30 Tage testen</h3>
+      <p class="step-desc">Du testest das komplette System einen Monat lang kostenlos. Kein Risiko, keine Verpflichtung.</p>
+    </div>
+    <div class="process-step reveal">
+      <div class="step-num">04</div>
+      <h3 class="step-title">Wachsen</h3>
+      <p class="step-desc">Du siehst die Ergebnisse — mehr Anrufe, mehr Reviews, mehr Aufträge. Dann entscheidest du dich für den Retainer.</p>
+    </div>
+  </div>
+</section>
+
+<section class="demo-section" id="demo">
+  <div class="demo-inner">
+    <div class="section-label">Live testen</div>
+    <div class="demo-card reveal">
+      <div class="demo-left">
+        <h2 class="demo-title">Ruf einfach<br><span style="-webkit-text-stroke: 1px rgba(255,255,255,0.2); color: transparent;">an.</span></h2>
+        <p class="demo-desc">Unser KI-Telefonbot läuft 24/7 — genau so wie bei deinen Kunden. Kein Skript, kein Schauspieler. Ruf an und erleb selbst was deine Kunden erleben würden.</p>
+        <div class="demo-number">📞 +43 720 080 601</div>
+        <br>
+        <a href="tel:+43720080601" class="demo-call-btn">
+          <span class="demo-pulse"></span>
+          Jetzt anrufen & testen
+        </a>
+      </div>
+      <div class="demo-right">
+        <div class="demo-visual">
+          <span class="demo-phone-icon">📞</span>
+        </div>
+        <div class="demo-live">● Live aktiv</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="faq-section" id="faq">
+  <div class="faq-inner">
+    <div class="section-label">Häufige Fragen</div>
+    <h2 class="section-title reveal">Alles klar.<br><span style="-webkit-text-stroke: 1px rgba(255,255,255,0.2); color: transparent;">Versprochen.</span></h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Was passiert wenn der Bot etwas Falsches sagt?
+          <i class="faq-icon">+</i>
+        </button>
+        <div class="faq-answer"><p>Der Bot wird auf dein Unternehmen trainiert — er kennt deine Öffnungszeiten, Leistungen und häufigen Fragen. Bei unklaren Anfragen leitet er automatisch weiter oder nimmt eine Nachricht auf. Du behältst immer die Kontrolle und kannst Inhalte jederzeit anpassen.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Brauche ich technisches Wissen oder IT-Personal?
+          <i class="faq-icon">+</i>
+        </button>
+        <div class="faq-answer"><p>Nein. Wir übernehmen das komplette Setup — von der Einrichtung bis zur Übergabe. Du brauchst nur dein Smartphone und 30 Minuten für den ersten Termin. Danach läuft alles automatisch.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Was passiert nach den 30 Tagen kostenlos?
+          <i class="faq-icon">+</i>
+        </button>
+        <div class="faq-answer"><p>Nach dem Testzeitraum entscheidest du ob du weitermachen willst. Kein automatischer Vertragsabschluss, kein versteckter Druck. Wenn du zufrieden bist, wechselst du einfach in eines unserer Pakete — monatlich kündbar.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Kann ich jederzeit kündigen?
+          <i class="faq-icon">+</i>
+        </button>
+        <div class="faq-answer"><p>Ja. Monatlich kündbar — kein Mindestvertrag, keine Kündigungsfristen. Wir sind überzeugt dass du bleibst weil es funktioniert, nicht weil du musst.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Für welche Branchen ist das geeignet?
+          <i class="faq-icon">+</i>
+        </button>
+        <div class="faq-answer"><p>Für jeden Betrieb der Anrufe erhält und Kunden betreut — Handwerker, Gastronomie, Hotels, Kosmetik, Autowerkstätten, Arztpraxen und viele mehr. Wenn dein Telefon klingelt, können wir helfen.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-question" onclick="toggleFaq(this)">
+          Wie schnell ist der Bot einsatzbereit?
+          <i class="faq-icon">+</i>
+        </button>
+        <div class="faq-answer"><p>Typischerweise innerhalb von 3–5 Werktagen nach dem ersten Gespräch. Wir konfigurieren alles, testen mit dir gemeinsam und gehen erst live wenn du zufrieden bist.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section" id="kontakt">
+  <div class="cta-bg"></div>
+  <h2 class="cta-title reveal">Wie viele Anrufe<br>verlierst du<br><span class="accent">pro Woche?</span></h2>
+  <p class="cta-sub reveal">Buche jetzt deinen kostenlosen KI-Check. 30 Minuten — und du weißt genau was du gewinnst.</p>
+  <div class="cta-actions reveal">
+    <button onclick="openFlow()" class="btn-primary">KI-Check buchen →</button>
+  </div>
+</section>
+
+<!-- MULTI-STEP FLOW MODAL -->
+<div class="flow-overlay" id="flowOverlay" onclick="if(event.target===this)closeFlow()">
+  <div class="flow-modal">
+    <button class="flow-close" onclick="closeFlow()">✕</button>
+    <div class="flow-progress">
+      <div class="flow-dot done" id="dot1"></div>
+      <div class="flow-dot" id="dot2"></div>
+      <div class="flow-dot" id="dot3"></div>
+      <div class="flow-dot" id="dot4"></div>
+      <div class="flow-dot" id="dot5"></div>
+    </div>
+    <div class="flow-step active" id="step1">
+      <div class="flow-step-num">Schritt 1 / 5</div>
+      <h3 class="flow-question">Wie heißt du?</h3>
+      <input class="flow-input" id="inputName" type="text" placeholder="Dein Name" oninput="checkInput('inputName','next1')" onkeydown="if(event.key==='Enter')nextStep(2)">
+      <button class="flow-next" id="next1" disabled onclick="nextStep(2)">Weiter →</button>
+    </div>
+    <div class="flow-step" id="step2">
+      <div class="flow-step-num">Schritt 2 / 5</div>
+      <h3 class="flow-question">Dein Betrieb?</h3>
+      <input class="flow-input" id="inputFirma" type="text" placeholder="Firmenname" style="margin-bottom:12px" oninput="checkInput('inputFirma','next2')" onkeydown="if(event.key==='Enter')nextStep(3)">
+      <input class="flow-input" id="inputBranche" type="text" placeholder="Branche (z.B. Elektriker, Friseur ...)" oninput="checkInput('inputFirma','next2')" onkeydown="if(event.key==='Enter')nextStep(3)">
+      <button class="flow-next" id="next2" disabled onclick="nextStep(3)">Weiter →</button>
+    </div>
+    <div class="flow-step" id="step3">
+      <div class="flow-step-num">Schritt 3 / 5</div>
+      <h3 class="flow-question">Deine Nummer?</h3>
+      <input class="flow-input" id="inputTel" type="tel" placeholder="+43 XXX XXX XXXX" oninput="checkInput('inputTel','next3')" onkeydown="if(event.key==='Enter')nextStep(4)">
+      <button class="flow-next" id="next3" disabled onclick="nextStep(4)">Weiter →</button>
+    </div>
+    <div class="flow-step" id="step4">
+      <div class="flow-step-num">Schritt 4 / 5</div>
+      <h3 class="flow-question">Deine E-Mail?</h3>
+      <input class="flow-input" id="inputEmail" type="email" placeholder="deine@email.at" oninput="checkInput('inputEmail','next4')" onkeydown="if(event.key==='Enter')nextStep(5)">
+      <button class="flow-next" id="next4" disabled onclick="nextStep(5)">Weiter →</button>
+    </div>
+    <div class="flow-step" id="step5">
+      <div class="flow-step-num">Schritt 5 / 5</div>
+      <h3 class="flow-question">Wie soll's laufen?</h3>
+      <div class="flow-choice-grid">
+        <button class="flow-choice" id="choiceZoom" onclick="selectChoice('zoom')">
+          <span class="choice-icon">💻</span>Zoom / Video Call
+        </button>
+        <button class="flow-choice" id="choiceVorOrt" onclick="selectChoice('vorort')">
+          <span class="choice-icon">🤝</span>Vor Ort
+        </button>
+      </div>
+      <button class="flow-next" id="next5" disabled onclick="submitFlow()">Termin buchen →</button>
+    </div>
+    <div class="flow-step" id="stepSuccess">
+      <div class="flow-success">
+        <div class="flow-success-icon">🔥</div>
+        <h3>Fast fertig!</h3>
+        <p>Wähle jetzt deinen Wunschtermin für den kostenlosen KI-Check.<br><br><small style="color:rgba(255,255,255,0.35); font-family:var(--font-mono); font-size:11px; letter-spacing:1px;">Mit der Buchung stimmst du der Verarbeitung deiner Daten gemäß unserer <a href="#datenschutz" onclick="closeFlow();" style="color:var(--orange);">Datenschutzerklärung</a> zu.</small></p>
+        <a href="buchen.html" class="flow-cal-btn" id="calLink">Termin auswählen →</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo" style="font-family:var(--font-display);font-size:22px;letter-spacing:3px;">L<span>AI</span>ONEX</div>
+  <div class="footer-text">
+    © 2026 Laionex · Österreich · <a href="mailto:info@laionex.at">info@laionex.at</a> ·
+    <a href="#impressum" onclick="showSection('impressum'); return false;">Impressum</a> ·
+    <a href="#datenschutz" onclick="showSection('datenschutz'); return false;">Datenschutz</a>
+  </div>
+</footer>
+
+<!-- IMPRESSUM -->
+<section id="impressum" style="display:none; padding: 80px 48px; max-width: 800px; margin: 0 auto; color: var(--grey-text); font-size: 15px; line-height: 1.8;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 48px; flex-wrap: wrap; gap: 16px;">
+    <h2 style="font-family: var(--font-display); font-size: 48px; text-transform: uppercase; color: var(--white);">Impressum</h2>
+    <button onclick="hideSection('impressum')" style="background: none; border: 1px solid rgba(255,255,255,0.15); color: var(--grey-text); padding: 8px 20px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; cursor: pointer; text-transform: uppercase;">✕ Schließen</button>
+  </div>
+  <p><strong style="color:var(--white);">Angaben gemäß § 5 ECG</strong></p><br>
+  <p><strong style="color:var(--white);">Unternehmensinhaber:</strong><br>Lorenz Vötter<br>Neder 329a<br>6156 Gries am Brenner<br>Österreich</p><br>
+  <p><strong style="color:var(--white);">Unternehmensform:</strong><br>Einzelunternehmen (Kleinunternehmen gemäß § 6 Abs. 1 Z 27 UStG)</p><br>
+  <p><strong style="color:var(--white);">Kontakt:</strong><br>E-Mail: <a href="mailto:info@laionex.at" style="color:var(--orange);">info@laionex.at</a><br>Tel: <a href="tel:+43720080601" style="color:var(--orange);">+43 720 080 601</a></p><br>
+  <p><strong style="color:var(--white);">Unternehmensgegenstand:</strong><br>Entwicklung und Vermietung von KI-gestützten Kommunikationslösungen für Unternehmen.</p><br>
+  <p><strong style="color:var(--white);">Aufsichtsbehörde:</strong><br>Bezirkshauptmannschaft Innsbruck-Land</p><br>
+  <p><strong style="color:var(--white);">EU-Streitschlichtung:</strong><br>Plattform der EU-Kommission: <a href="https://ec.europa.eu/consumers/odr" target="_blank" style="color:var(--orange);">https://ec.europa.eu/consumers/odr</a>. Wir nehmen nicht an Streitbeilegungsverfahren teil.</p>
+</section>
+
+<!-- DATENSCHUTZ -->
+<section id="datenschutz" style="display:none; padding: 80px 48px; max-width: 800px; margin: 0 auto; color: var(--grey-text); font-size: 15px; line-height: 1.8;">
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 48px; flex-wrap: wrap; gap: 16px;">
+    <h2 style="font-family: var(--font-display); font-size: 48px; text-transform: uppercase; color: var(--white);">Datenschutz</h2>
+    <button onclick="hideSection('datenschutz')" style="background: none; border: 1px solid rgba(255,255,255,0.15); color: var(--grey-text); padding: 8px 20px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; cursor: pointer; text-transform: uppercase;">✕ Schließen</button>
+  </div>
+  <p><strong style="color:var(--white);">Datenschutzerklärung gemäß DSGVO / DSG</strong></p><br>
+  <h3 style="color:var(--white); font-family:var(--font-mono); font-size:12px; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px;">1. Verantwortlicher</h3>
+  <p>Lorenz Vötter (Einzelunternehmen), Neder 329a, 6156 Gries am Brenner · <a href="mailto:info@laionex.at" style="color:var(--orange);">info@laionex.at</a></p><br>
+  <h3 style="color:var(--white); font-family:var(--font-mono); font-size:12px; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px;">2. Datenerhebung</h3>
+  <p>Wir erheben Kontaktdaten (Name, E-Mail, Telefon) bei Anfragen sowie technische Daten beim Website-Besuch über GitHub Pages Hosting.</p><br>
+  <h3 style="color:var(--white); font-family:var(--font-mono); font-size:12px; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px;">3. KI-Telefonbot & Aufzeichnung</h3>
+  <p>Unser KI-Telefonbot wird über <strong style="color:var(--white);">fonio.ai</strong> betrieben. Gespräche werden aufgezeichnet (Hinweis zu Beginn des Gesprächs), für max. 90 Tage gespeichert und danach gelöscht. fonio.ai ist Auftragsverarbeiter gem. Art. 28 DSGVO.</p><br>
+  <h3 style="color:var(--white); font-family:var(--font-mono); font-size:12px; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px;">4. Google Fonts</h3>
+  <p>Diese Website lädt Schriftarten von Google Fonts (Google Ireland Ltd.). Dabei wird deine IP-Adresse an Google-Server übertragen. Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Darstellung).</p><br>
+  <h3 style="color:var(--white); font-family:var(--font-mono); font-size:12px; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px;">5. Hosting</h3>
+  <p>Hosting über <strong style="color:var(--white);">GitHub Pages</strong> (GitHub Inc., USA). Technische Daten werden durch GitHub verarbeitet. Weitere Infos: <a href="https://docs.github.com/en/site-policy/privacy-policies/github-privacy-statement" target="_blank" style="color:var(--orange);">GitHub Privacy Statement</a>.</p><br>
+  <h3 style="color:var(--white); font-family:var(--font-mono); font-size:12px; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px;">6. Deine Rechte</h3>
+  <p>Auskunft (Art. 15) · Berichtigung (Art. 16) · Löschung (Art. 17) · Einschränkung (Art. 18) · Datenübertragbarkeit (Art. 20) · Widerspruch (Art. 21 DSGVO). Kontakt: <a href="mailto:info@laionex.at" style="color:var(--orange);">info@laionex.at</a></p><br>
+  <h3 style="color:var(--white); font-family:var(--font-mono); font-size:12px; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px;">7. Beschwerderecht</h3>
+  <p>Datenschutzbehörde Österreich (DSB), Barichgasse 40–42, 1030 Wien · <a href="https://www.dsb.gv.at" target="_blank" style="color:var(--orange);">www.dsb.gv.at</a></p><br>
+  <p style="font-size:13px; color:#555;">Stand: März 2026</p>
+</section>
+
+<!-- COOKIE BANNER -->
+<div id="cookieBanner">
+  <span class="cookie-text">Diese Website verwendet Google Fonts (externe Server). Details in unserer <a href="#datenschutz" onclick="showSection('datenschutz');">Datenschutzerklärung</a>.</span>
+  <button class="cookie-btn" onclick="acceptCookies()">OK, verstanden</button>
+</div>
+
+<script>
+  // ── MOBILE NAV ──
+  function toggleMobileNav() {
+    const nav = document.getElementById('mobileNav');
+    const burger = document.getElementById('navBurger');
+    nav.classList.toggle('open');
+    burger.classList.toggle('open');
+    document.body.style.overflow = nav.classList.contains('open') ? 'hidden' : '';
+  }
+  function closeMobileNav() {
+    document.getElementById('mobileNav').classList.remove('open');
+    document.getElementById('navBurger').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  // ── FLOW ──
+  let currentStep = 1;
+  let selectedMeeting = '';
+
+  function openFlow() {
+    closeMobileNav();
+    currentStep = 1;
+    selectedMeeting = '';
+    document.querySelectorAll('.flow-step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step1').classList.add('active');
+    updateDots(1);
+    document.getElementById('flowOverlay').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => document.getElementById('inputName').focus(), 100);
+  }
+
+  function closeFlow() {
+    document.getElementById('flowOverlay').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+
+  function nextStep(n) {
+    document.getElementById('step' + currentStep).classList.remove('active');
+    currentStep = n;
+    if (n <= 5) {
+      document.getElementById('step' + n).classList.add('active');
+      updateDots(n);
+      const firstInput = document.querySelector('#step' + n + ' .flow-input');
+      if (firstInput) setTimeout(() => firstInput.focus(), 100);
+    } else {
+      document.getElementById('stepSuccess').classList.add('active');
+      updateDots(6);
+    }
+  }
+
+  function updateDots(step) {
+    for (let i = 1; i <= 5; i++) {
+      document.getElementById('dot' + i).classList.toggle('done', i < step);
+    }
+  }
+
+  function checkInput(inputId, btnId) {
+    const val = document.getElementById(inputId).value.trim();
+    document.getElementById(btnId).disabled = val.length < 2;
+  }
+
+  function selectChoice(type) {
+    selectedMeeting = type;
+    document.getElementById('choiceZoom').classList.toggle('selected', type === 'zoom');
+    document.getElementById('choiceVorOrt').classList.toggle('selected', type === 'vorort');
+    document.getElementById('next5').disabled = false;
+  }
+
+  function submitFlow() {
+    const name = document.getElementById('inputName').value.trim();
+    const email = document.getElementById('inputEmail').value.trim();
+    const firma = document.getElementById('inputFirma').value.trim();
+    const branche = document.getElementById('inputBranche').value.trim();
+    const tel = document.getElementById('inputTel').value.trim();
+    const meeting = selectedMeeting === 'zoom' ? 'Zoom / Video Call' : 'Vor Ort';
+
+    fetch('https://hook.eu2.make.com/cuhuto7buzld4wbi6umlje8iw1x1axmk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, firma, branche, tel, meeting, timestamp: new Date().toISOString() })
+    }).catch(() => {});
+
+    const params = new URLSearchParams({ name, email, firma, branche, tel, meeting });
+    document.getElementById('calLink').href = 'buchen.html?' + params.toString();
+    nextStep(6);
+  }
+
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFlow(); });
+
+  // ── FAQ ──
+  function toggleFaq(btn) {
+    const item = btn.parentElement;
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+
+  // ── LEGAL SECTIONS ──
+  function showSection(id) {
+    ['impressum','datenschutz'].forEach(s => {
+      document.getElementById(s).style.display = s === id ? 'block' : 'none';
+    });
+    setTimeout(() => {
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  }
+  function hideSection(id) {
+    document.getElementById(id).style.display = 'none';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── COOKIE BANNER ──
+  function acceptCookies() {
+    document.getElementById('cookieBanner').style.display = 'none';
+    try { localStorage.setItem('cookieOk', '1'); } catch(e) {}
+  }
+  (function() {
+    try {
+      if (!localStorage.getItem('cookieOk')) {
+        document.getElementById('cookieBanner').style.display = 'flex';
+      }
+    } catch(e) {
+      document.getElementById('cookieBanner').style.display = 'flex';
+    }
+  })();
+
+  // ── CUSTOM CURSOR ──
+  const cursor = document.getElementById('cursor');
+  const ring = document.getElementById('cursorRing');
+  let mouseX = 0, mouseY = 0, ringX = 0, ringY = 0;
+  document.addEventListener('mousemove', e => {
+    mouseX = e.clientX; mouseY = e.clientY;
+    cursor.style.left = mouseX + 'px';
+    cursor.style.top = mouseY + 'px';
+  });
+  function animateRing() {
+    ringX += (mouseX - ringX) * 0.12;
+    ringY += (mouseY - ringY) * 0.12;
+    ring.style.left = ringX + 'px';
+    ring.style.top = ringY + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  animateRing();
+  document.querySelectorAll('a, button').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursor.style.width = '20px'; cursor.style.height = '20px';
+      ring.style.width = '56px'; ring.style.height = '56px';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursor.style.width = '12px'; cursor.style.height = '12px';
+      ring.style.width = '36px'; ring.style.height = '36px';
+    });
+  });
+
+  // ── REVEAL ON SCROLL ──
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
