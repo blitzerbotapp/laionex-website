@@ -104,13 +104,6 @@
   .ticker-dot { width: 4px; height: 4px; background: var(--orange); border-radius: 50%; }
   @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-  /* ── TRUST BAR ── */
-  .trust-bar { padding: 24px 48px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; gap: 64px; flex-wrap: wrap; }
-  .trust-label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 3px; color: #333; text-transform: uppercase; }
-  .trust-items { display: flex; align-items: center; gap: 48px; flex-wrap: wrap; justify-content: center; }
-  .trust-item { font-family: var(--font-mono); font-size: 12px; color: #444; letter-spacing: 1px; transition: color 0.3s; }
-  .trust-item:hover { color: #666; }
-
   /* ── SECTIONS ── */
   .section { padding: 120px 48px; }
   .section-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--orange); margin-bottom: 48px; display: flex; align-items: center; gap: 16px; }
@@ -242,10 +235,12 @@
   .reveal.visible { opacity: 1; transform: none; }
 
   /* ── COOKIE BANNER ── */
-  #cookieBanner { position: fixed; bottom: 0; left: 0; right: 0; background: #111; border-top: 1px solid #222; padding: 16px 32px; display: none; align-items: center; justify-content: space-between; gap: 16px; z-index: 9000; }
-  .cookie-text { font-family: var(--font-mono); font-size: 11px; color: var(--grey-text); line-height: 1.6; }
+  #cookieBanner { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(17,17,17,0.98); border-top: 1px solid rgba(255,255,255,0.08); padding: 14px 24px; display: none; align-items: center; justify-content: space-between; gap: 20px; z-index: 9000; backdrop-filter: blur(8px); }
+  .cookie-text { font-family: var(--font-mono); font-size: 11px; color: var(--grey-text); line-height: 1.5; }
   .cookie-text a { color: var(--orange); text-decoration: none; }
   .cookie-btn { background: var(--orange); color: var(--black); border: none; padding: 10px 24px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; cursor: pointer; white-space: nowrap; text-transform: uppercase; flex-shrink: 0; }
+  .cookie-close { background: none; border: none; color: var(--grey-text); font-size: 18px; cursor: pointer; padding: 4px 8px; line-height: 1; transition: color 0.2s; flex-shrink: 0; }
+  .cookie-close:hover { color: var(--white); }
 
   /* ── MOBILE RESPONSIVE ── */
   @media (max-width: 768px) {
@@ -260,11 +255,6 @@
     .hero-bottom { flex-direction: column; align-items: flex-start; gap: 32px; }
     .hero-actions { align-items: flex-start; }
     .hero-sub { font-size: 15px; max-width: 100%; }
-
-    /* Trust bar */
-    .trust-bar { gap: 24px; padding: 20px 24px; }
-    .trust-items { gap: 24px; }
-    .trust-label { display: none; }
 
     /* Sections */
     .section { padding: 64px 24px; }
@@ -393,19 +383,6 @@
   </div>
 </div>
 
-<!-- Trust Bar -->
-<div class="trust-bar">
-  <span class="trust-label">Technologie</span>
-  <div class="trust-items">
-    <span class="trust-item">fonio.ai</span>
-    <span class="trust-item">Voiceflow</span>
-    <span class="trust-item">Make.com</span>
-    <span class="trust-item">Twilio</span>
-    <span class="trust-item">n8n</span>
-    <span class="trust-item">GitHub Pages</span>
-  </div>
-</div>
-
 <section class="section" id="probleme">
   <div class="section-label">Das Problem</div>
   <div class="problem-grid">
@@ -515,10 +492,10 @@
     <div class="price-card reveal" style="background: rgba(255,77,0,0.04); border: 1px solid rgba(255,77,0,0.15); padding: 40px 48px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 24px;">
       <div>
         <div style="font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; color: var(--orange); text-transform: uppercase; margin-bottom: 10px;">Individuelle Lösung</div>
-        <h4 style="font-family: var(--font-display); font-size: 28px; text-transform: uppercase; margin-bottom: 8px;">Nur bestimmte Teile gewünscht?</h4>
+        <h4 style="font-family: var(--font-display); font-size: 28px; text-transform: uppercase; margin-bottom: 8px;">Individuelle Lösung gewünscht?</h4>
         <p style="color: var(--grey-text); font-size: 14px; max-width: 480px;">Nur den Telefonbot? Oder nur das Review-System? Kein Problem — wir bauen was zu dir passt.</p>
       </div>
-      <button onclick="openFlow()" class="btn-secondary" style="flex-shrink: 0;">Anfrage stellen →</button>
+      <button onclick="openFlow()" class="btn-primary" style="flex-shrink: 0;">Anfrage stellen →</button>
     </div>
   </div>
 
@@ -746,8 +723,11 @@
 
 <!-- COOKIE BANNER -->
 <div id="cookieBanner">
-  <span class="cookie-text">Diese Website verwendet Google Fonts (externe Server). Details in unserer <a href="#datenschutz" onclick="showSection('datenschutz');">Datenschutzerklärung</a>.</span>
-  <button class="cookie-btn" onclick="acceptCookies()">OK, verstanden</button>
+  <span class="cookie-text">Wir nutzen technisch notwendige Dienste (z.B. Schriftarten). Mehr in der <a href="#datenschutz" onclick="acceptCookies(); showSection('datenschutz');">Datenschutzerklärung</a>.</span>
+  <div style="display: flex; align-items: center; gap: 12px;">
+    <button class="cookie-btn" onclick="acceptCookies()">OK</button>
+    <button class="cookie-close" onclick="acceptCookies()" aria-label="Schließen">×</button>
+  </div>
 </div>
 
 <script>
@@ -869,10 +849,14 @@
   (function() {
     try {
       if (!localStorage.getItem('cookieOk')) {
-        document.getElementById('cookieBanner').style.display = 'flex';
+        setTimeout(function() {
+          document.getElementById('cookieBanner').style.display = 'flex';
+        }, 1500);
       }
     } catch(e) {
-      document.getElementById('cookieBanner').style.display = 'flex';
+      setTimeout(function() {
+        document.getElementById('cookieBanner').style.display = 'flex';
+      }, 1500);
     }
   })();
 
