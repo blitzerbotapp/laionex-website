@@ -194,11 +194,10 @@
   .demo-title { font-family: var(--font-display); font-size: clamp(36px, 5vw, 60px); line-height: 0.95; text-transform: uppercase; margin-bottom: 24px; }
   .demo-desc { font-size: 16px; color: var(--grey-text); line-height: 1.7; margin-bottom: 40px; }
   .demo-number { font-family: var(--font-mono); font-size: 13px; letter-spacing: 2px; color: var(--orange); margin-bottom: 8px; -webkit-tap-highlight-color: transparent; }
-  .demo-call-btn { display: inline-flex; align-items: center; gap: 12px; background: var(--orange); color: var(--black); font-family: var(--font-mono); font-size: 13px; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; padding: 18px 36px; font-weight: 700; transition: all 0.2s; -webkit-tap-highlight-color: rgba(255,77,0,0.3); }
-  .demo-call-btn:hover { background: var(--orange-dim); transform: translateY(-2px); }
+  .demo-call-btn { display: inline-flex; align-items: center; gap: 12px; background: var(--orange); color: var(--black) !important; font-family: var(--font-mono); font-size: 13px; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; padding: 18px 36px; font-weight: 700; transition: background 0.2s, transform 0.2s; -webkit-tap-highlight-color: rgba(255,77,0,0.3); border: none; }
+  .demo-call-btn:hover { background: var(--orange-dim); transform: translateY(-1px); }
   a[href^="tel:"] { color: var(--orange); -webkit-tap-highlight-color: rgba(255,77,0,0.2); }
-  .demo-pulse { width: 12px; height: 12px; background: var(--black); border-radius: 50%; animation: pulse 1.5s infinite; }
-  @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.7; } }
+  a.demo-call-btn { color: var(--black) !important; }
   .demo-right { flex: 0 0 220px; text-align: center; }
   .demo-visual { width: 180px; height: 180px; border: 1px solid rgba(255,77,0,0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; position: relative; }
   .demo-visual::before { content: ''; position: absolute; inset: -8px; border: 1px solid rgba(255,77,0,0.1); border-radius: 50%; animation: spin 8s linear infinite; border-top-color: var(--orange); }
@@ -539,11 +538,10 @@
       <div class="demo-left">
         <h2 class="demo-title">Ruf einfach<br><span style="-webkit-text-stroke: 1px rgba(255,255,255,0.2); color: transparent;">an.</span></h2>
         <p class="demo-desc">Unser KI-Telefonbot läuft 24/7 — genau so wie bei deinen Kunden. Kein Skript, kein Schauspieler. Ruf an und erleb selbst was deine Kunden erleben würden.</p>
-        <div class="demo-number">📞 +43 720 080 601</div>
+        <div class="demo-number">📞 +43 720 080 601 · Kostenlos testen</div>
         <br>
         <a href="tel:+43720080601" class="demo-call-btn">
-          <span class="demo-pulse"></span>
-          Jetzt anrufen & testen
+          Jetzt kostenlos anrufen & testen
         </a>
       </div>
       <div class="demo-right">
