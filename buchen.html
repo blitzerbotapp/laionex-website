@@ -437,6 +437,18 @@
     const opts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
     const dateStr = selectedDate.toLocaleDateString('de-AT', opts);
 
+    // date: YYYY-MM-DD (local, not UTC - toISOString would be wrong for timezones)
+    const y = selectedDate.getFullYear();
+    const m = String(selectedDate.getMonth() + 1).padStart(2, '0');
+    const d = String(selectedDate.getDate()).padStart(2, '0');
+    const dateFormatted = y + '-' + m + '-' + d;
+
+    // time: HH:mm (already correct from SLOT_TIMES)
+    const timeFormatted = selectedTime;
+
+    // timestamp: appointment datetime for Make/Zoho Calendar
+    const timestampFormatted = dateFormatted + 'T' + timeFormatted + ':00';
+
     const payload = {
       name,
       email,
@@ -444,10 +456,10 @@
       branche: prefill.branche || '',
       tel: prefill.tel || '',
       meeting: prefill.meeting || 'Zoom / Video Call',
-      date: selectedDate.toISOString().split('T')[0],
-      time: selectedTime,
+      date: dateFormatted,
+      time: timeFormatted,
       date_readable: dateStr + ' · ' + selectedTime + ' Uhr',
-      timestamp: new Date().toISOString()
+      timestamp: timestampFormatted
     };
 
     document.getElementById('loadingOverlay').classList.add('active');
