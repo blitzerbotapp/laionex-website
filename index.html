@@ -101,10 +101,11 @@
 
   /* ── TICKER ── */
   .ticker { border-top: 1px solid var(--grey-mid); border-bottom: 1px solid var(--grey-mid); padding: 16px 0; overflow: hidden; background: var(--grey); }
-  .ticker-inner { display: flex; gap: 80px; animation: ticker 14s linear infinite; white-space: nowrap; }
+  .ticker-inner { display: flex; flex-shrink: 0; animation: ticker 16s linear infinite; will-change: transform; }
+  .ticker-track { display: flex; gap: 80px; flex-shrink: 0; white-space: nowrap; padding-right: 80px; }
   .ticker-item { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--grey-text); display: flex; align-items: center; gap: 20px; flex-shrink: 0; }
   .ticker-dot { width: 4px; height: 4px; background: var(--orange); border-radius: 50%; }
-  @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+  @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-50%, 0, 0); } }
 
   /* ── SECTIONS ── */
   .section { padding: 120px 48px; }
@@ -376,30 +377,34 @@
 
 <div class="ticker">
   <div class="ticker-inner">
-    <div class="ticker-item"><div class="ticker-dot"></div>Handwerk</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Gastronomie</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Hotels</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Kosmetik & Beauty</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Autowerkstätten</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Immobilienmakler</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Ärzte & Zahnärzte</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Anwälte & Steuerberater</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Versicherungen</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Apotheken</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Fitnessstudios</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Dienstleister aller Art</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Handwerk</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Gastronomie</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Hotels</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Kosmetik & Beauty</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Autowerkstätten</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Immobilienmakler</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Ärzte & Zahnärzte</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Anwälte & Steuerberater</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Versicherungen</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Apotheken</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Fitnessstudios</div>
-    <div class="ticker-item"><div class="ticker-dot"></div>Dienstleister aller Art</div>
+    <div class="ticker-track">
+      <div class="ticker-item"><div class="ticker-dot"></div>Handwerk</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Gastronomie</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Hotels</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Kosmetik & Beauty</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Autowerkstätten</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Immobilienmakler</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Ärzte & Zahnärzte</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Anwälte & Steuerberater</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Versicherungen</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Apotheken</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Fitnessstudios</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Dienstleister aller Art</div>
+    </div>
+    <div class="ticker-track">
+      <div class="ticker-item"><div class="ticker-dot"></div>Handwerk</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Gastronomie</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Hotels</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Kosmetik & Beauty</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Autowerkstätten</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Immobilienmakler</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Ärzte & Zahnärzte</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Anwälte & Steuerberater</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Versicherungen</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Apotheken</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Fitnessstudios</div>
+      <div class="ticker-item"><div class="ticker-dot"></div>Dienstleister aller Art</div>
+    </div>
   </div>
 </div>
 
