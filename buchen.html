@@ -84,6 +84,7 @@
     .slots-section.visible { display: block; }
     .slots-title { font-size: 12px; letter-spacing: 2px; color: var(--grey-text); text-transform: uppercase; margin-bottom: 16px; }
     .slots-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .slots-loading { grid-column: 1/-1; color: var(--grey-text); font-size: 13px; padding: 24px; text-align: center; }
     .slot-btn { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: var(--grey-text); font-family: var(--font-mono); font-size: 13px; padding: 14px 8px; cursor: pointer; transition: all 0.15s; text-align: center; }
     .slot-btn:hover { border-color: rgba(255,77,0,0.4); color: var(--white); }
     .slot-btn.selected { background: var(--orange); color: var(--black); border-color: var(--orange); font-weight: 700; }
@@ -253,8 +254,12 @@
   const TIMEZONE = 'Europe/Vienna';
   const MAKE_WEBHOOK = 'https://hook.eu2.make.com/spx25hcsooa8lquuru09tny1edoz2ekz';
   const BOOKED_SLOTS_URL = 'https://docs.google.com/spreadsheets/d/1v19GABQJX9edo96-iLnGqMhUjhny2zXqGbaIpIYxcKw/export?format=csv&gid=0';
-  const BUSY_SLOTS_WEBHOOK = ''; // Cloudflare Worker (empfohlen) oder Make-Webhook. GET ?date=YYYY-MM-DD → { busy: ["09:00",...] }
-  let bookedSlots = []; // Format: ["2026-03-20T09:00", "2026-03-21T14:00"]
+  // Cal.com API für Verfügbarkeit (liest aus deinem Zoho-Kalender)
+  const CAL_COM_USERNAME = 'laionex.ai';
+  const CAL_COM_EVENT_SLUG = 'kostenloser-ki-analyse-call';
+  const CAL_COM_API_KEY = 'cal_live_894e3fa42901b61049273db37ee2dc78';
+  const slotsCache = {}; // dateStr -> ["09:00", "10:00", ...]
+  let bookedSlots = [];
   const DAYS = ['Mo','Di','Mi','Do','Fr','Sa','So'];
   const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 
@@ -334,7 +339,6 @@
   // --- INIT ---
   async function init() {
     await loadBookedSlots();
-    // Show prefill card
     if (prefill.name) {
       document.getElementById('prefillCard').style.display = 'flex';
       document.getElementById('prefillName').textContent = prefill.name + (prefill.firma ? ' · ' + prefill.firma : '');
@@ -395,6 +399,31 @@
       cell.textContent = d;
       grid.appendChild(cell);
     }
+    preloadSlotsForMonth();
+  }
+
+  async function preloadSlotsForMonth() {
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const datesToFetch = [];
+    for (let d = 1; d <= lastDay.getDate(); d++) {
+      const dayDate = new Date(year, month, d);
+      const dow = dayDate.getDay();
+      if (dayDate > today && dow !== 0 && dow !== 6) {
+        datesToFetch.push(dayDate);
+      }
+    }
+    await Promise.all(datesToFetch.map(d => fetchAndCacheSlots(d)));
+  }
+
+  async function fetchAndCacheSlots(date) {
+    const y = date.getFullYear(), m = String(date.getMonth() + 1).padStart(2, '0'), d = String(date.getDate()).padStart(2, '0');
+    const dateStr = y + '-' + m + '-' + d;
+    if (slotsCache[dateStr]) return;
+    const slots = await fetchCalComAvailableSlots(date);
+    slotsCache[dateStr] = slots;
   }
 
   function selectDate(date, cell) {
@@ -406,17 +435,30 @@
     document.getElementById('confirmSection').classList.remove('visible');
   }
 
-  async function fetchZohoBusySlots(date) {
-    if (!BUSY_SLOTS_WEBHOOK || !BUSY_SLOTS_WEBHOOK.trim()) return [];
+  async function fetchCalComAvailableSlots(date) {
+    if (!CAL_COM_USERNAME || !CAL_COM_EVENT_SLUG) return [];
+    const y = date.getFullYear(), m = String(date.getMonth() + 1).padStart(2, '0'), d = String(date.getDate()).padStart(2, '0');
+    const dateStr = y + '-' + m + '-' + d;
+    if (slotsCache[dateStr]) return slotsCache[dateStr];
     try {
-      const y = date.getFullYear(), m = String(date.getMonth() + 1).padStart(2, '0'), d = String(date.getDate()).padStart(2, '0');
-      const dateStr = y + '-' + m + '-' + d;
-      const sep = BUSY_SLOTS_WEBHOOK.includes('?') ? '&' : '?';
-      const res = await fetch(BUSY_SLOTS_WEBHOOK + sep + 'date=' + encodeURIComponent(dateStr));
+      const next = new Date(date);
+      next.setDate(next.getDate() + 1);
+      const endStr = next.getFullYear() + '-' + String(next.getMonth() + 1).padStart(2, '0') + '-' + String(next.getDate()).padStart(2, '0');
+      const url = `https://api.cal.com/v2/slots?eventTypeSlug=${encodeURIComponent(CAL_COM_EVENT_SLUG)}&username=${encodeURIComponent(CAL_COM_USERNAME)}&start=${dateStr}&end=${endStr}&timeZone=${encodeURIComponent(TIMEZONE)}`;
+      const headers = { 'cal-api-version': '2024-09-04' };
+      if (CAL_COM_API_KEY) headers['Authorization'] = 'Bearer ' + CAL_COM_API_KEY;
+      const res = await fetch(url, { headers });
       if (!res.ok) return [];
-      const data = await res.json();
-      const busy = data.busy || data.slots || [];
-      return Array.isArray(busy) ? busy.map(s => s.includes('T') ? s : dateStr + 'T' + s) : [];
+      const json = await res.json();
+      const daySlots = json?.data?.[dateStr] || [];
+      const result = daySlots.map(s => {
+        const str = typeof s === 'string' ? s : (s?.start || s);
+        if (!str) return '';
+        const m = str.match(/T(\d{2}):(\d{2})/);
+        return m ? m[1] + ':' + m[2] : '';
+      }).filter(Boolean);
+      slotsCache[dateStr] = result;
+      return result;
     } catch(e) { return []; }
   }
 
@@ -427,28 +469,26 @@
 
     const opts = { weekday: 'long', day: 'numeric', month: 'long', timeZone: TIMEZONE };
     title.textContent = date.toLocaleDateString('de-AT', opts);
-    slotsGrid.innerHTML = '';
-
     const y = date.getFullYear(), m = String(date.getMonth() + 1).padStart(2, '0'), d = String(date.getDate()).padStart(2, '0');
     const dateStr = y + '-' + m + '-' + d;
+    if (!slotsCache[dateStr]) slotsGrid.innerHTML = '<div class="slots-loading">Verfügbarkeit wird geladen …</div>';
+    const availableSlots = await fetchCalComAvailableSlots(date);
+    slotsGrid.innerHTML = '';
     const isToday = date.getTime() === today.getTime();
     const nowVienna = new Date(new Date().toLocaleString('en-US', { timeZone: TIMEZONE }));
     const currentMinutes = nowVienna.getHours() * 60 + nowVienna.getMinutes();
 
-    const zohoBusy = await fetchZohoBusySlots(date);
-    const allBusy = [...new Set([...bookedSlots, ...zohoBusy])];
-
     SLOT_TIMES.forEach(time => {
-      const slotKey = dateStr + 'T' + time;
-      const isBooked = allBusy.includes(slotKey);
+      const isAvailable = availableSlots.includes(time);
       const [th, tm] = time.split(':').map(Number);
       const slotMinutes = th * 60 + tm;
       const isPast = isToday && slotMinutes <= currentMinutes;
+      const isBookable = isAvailable && !isPast;
 
       const btn = document.createElement('button');
-      btn.className = 'slot-btn' + (isBooked || isPast ? ' taken' : '');
-      btn.textContent = isBooked ? time + ' ✓' : time;
-      if (!isBooked && !isPast) btn.onclick = () => selectTime(time, btn);
+      btn.className = 'slot-btn' + (isBookable ? '' : ' taken');
+      btn.textContent = isBookable ? time : time + (isPast ? '' : ' ✓');
+      if (isBookable) btn.onclick = () => selectTime(time, btn);
       else btn.disabled = true;
       slotsGrid.appendChild(btn);
     });
