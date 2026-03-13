@@ -724,6 +724,9 @@
 </div>
 
 <script>
+  // Cal.com: Wenn gesetzt, leitet der Flow hierhin weiter (Zoho verbinden, Link eintragen – fertig)
+  const CAL_COM_URL = 'https://cal.com/laionex.ai/kostenloser-ki-analyse-call';
+
   // ── MOBILE NAV ──
   function toggleMobileNav() {
     const nav = document.getElementById('mobileNav');
@@ -799,8 +802,13 @@
     const tel = document.getElementById('inputTel').value.trim();
     const meeting = selectedMeeting === 'zoom' ? 'Zoom / Video Call' : 'Vor Ort';
 
-    const params = new URLSearchParams({ name, email, firma, branche, tel, meeting });
-    window.location.href = 'buchen.html?' + params.toString();
+    if (CAL_COM_URL && CAL_COM_URL.trim()) {
+      const p = new URLSearchParams({ name, email, notes: [firma, branche, tel, meeting].filter(Boolean).join(' · ') });
+      window.location.href = CAL_COM_URL.replace(/\?.*$/, '') + '?' + p.toString();
+    } else {
+      const params = new URLSearchParams({ name, email, firma, branche, tel, meeting });
+      window.location.href = 'buchen.html?' + params.toString();
+    }
   }
 
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFlow(); });

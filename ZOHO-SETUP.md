@@ -1,111 +1,106 @@
-# Zoho Calendar – Make.com Setup (Schritt für Schritt)
+# Kalender-Sync für Buchungsseite
 
-Ich habe keinen direkten Zugriff auf Make.com. Folge dieser Anleitung – dauert ca. 10 Minuten.
+**Am einfachsten:** Cal.com – siehe [KALENDER-SETUP.md](KALENDER-SETUP.md). Ein Konto, Zoho verbinden, Link eintragen – fertig.
 
----
-
-## Voraussetzungen
-
-- Make.com Konto
-- Zoho Calendar Konto (E-Mail, mit der du eingeloggt bist)
-- Zoho-Verbindung in Make (falls noch nicht: Make → Connections → Add → Zoho)
+**Alternative (selbst hosten):** Cloudflare Worker + öffentlicher ICS-Feed
 
 ---
 
-## Szenario erstellen
+## Option A: Cloudflare Worker + ICS (empfohlen)
 
-### Schritt 1: Neues Szenario
+Dein Kalender (Zoho, Google, Outlook) bleibt die Single Source of Truth. Die Website holt die Verfügbarkeit direkt über einen kleinen Worker.
 
-1. Make.com öffnen → **Scenarios** → **Create a new scenario**
-2. Klick auf das **+** (erster Modul-Platz)
+### 1. Kalender öffentlich machen
 
-### Schritt 2: Webhook als Trigger
+**Zoho Calendar:**
+- Zoho Calendar → Einstellungen → Mein Kalender → Kalender bearbeiten
+- Unter „Freigabe“ → Öffentlich machen
+- **iCal-URL kopieren** (z.B. `https://calendar.zoho.com/feed/...`)
 
-1. **Webhooks** suchen → **Custom webhook** wählen
-2. **Add** klicken
-3. **Show advanced settings** öffnen
-4. **Expose webhook URL** aktivieren (falls nötig)
-5. **Webhook-URL kopieren** – diese brauchst du später für `buchen.html`
+**Google Calendar:**
+- Google Kalender → Kalender auswählen → Einstellungen
+- „Öffentliche Adresse in iCal-Format“ kopieren  
+  (z.B. `https://calendar.google.com/calendar/ical/.../public/basic.ics`)
 
-### Schritt 3: Router (optional, für saubere Verarbeitung)
+### 2. Cloudflare Worker deployen
 
-1. **+** nach dem Webhook → **Flow control** → **Router**
-2. Eine Route reicht (Default)
-
-### Schritt 4: HTTP – Zoho Free/Busy API
-
-1. **+** nach Webhook/Router → **HTTP** → **Make a request**
-2. Einstellungen:
-   - **URL:** `https://calendar.zoho.com/api/v1/calendars/freebusy`
-   - **Method:** GET
-   - **Query string** (Add item):
-     - `uemail` = deine Zoho-E-Mail (z.B. `lorenz@laionex.at`)
-     - `sdate` = `{{1.body.date}}T000000` (aus Webhook-Body)
-     - `edate` = `{{1.body.date}}T235959`
-   - **Authentication:** OAuth 2.0
-   - **Connection:** Zoho (neu anlegen oder vorhandene nutzen)
-
-3. **Zoho Connection anlegen:**
-   - Wenn noch keine: **Add** → Zoho auswählen
-   - Scopes: mindestens `ZohoCalendar.freebusy.READ` oder `ZohoCalendar.freebusy.ALL`
-   - OAuth durchführen
-
-### Schritt 5: Zoho-Response verarbeiten
-
-Die Zoho-API liefert z.B.:
-
-```json
-{
-  "freebusy": [
-    { "start": "20260316T090000", "end": "20260316T093000" },
-    { "start": "20260316T100000", "end": "20260316T103000" }
-  ]
-}
+```bash
+cd calendar-worker
+npm init -y   # falls noch kein package.json
+npx wrangler deploy
 ```
 
-Du musst daraus eine Liste von Zeiten wie `["09:00", "10:00"]` bauen.
+Beim ersten Mal: `npx wrangler login` (Browser öffnet sich, Cloudflare-Account verbinden).
 
-**Option A – Set Variable (einfach):**  
-Wenn die Zoho-Response anders aussieht, nutze **Tools → Set variable** und baue manuell ein Array.
+### 3. ICS-URL hinterlegen
 
-**Option B – Iterator + Array aggregieren:**  
-1. **Iterator** über `freebusy` (falls Array)  
-2. Für jedes Element: Startzeit parsen (z.B. `20260316T090000` → `09:00`)  
-3. **Array aggregator** oder **Set variable** mit allen Zeiten
+```bash
+npx wrangler secret put ICS_URL
+# Eingabe: deine iCal-URL (z.B. https://calendar.zoho.com/feed/...)
+```
 
-### Schritt 6: Respond to Webhook
+### 4. Worker-URL in buchen.html eintragen
 
-1. **+** nach dem HTTP-Modul → **Webhooks** → **Respond to webhook**
-2. Einstellungen:
-   - **Status:** 200
-   - **Content type:** application/json
-   - **Body:** z.B.  
-     `{ "busy": [ "09:00", "10:00" ] }`  
-     (Werte aus dem vorherigen Modul mappen)
+Nach dem Deploy zeigt Wrangler die URL, z.B.:
+`https://laionex-calendar.DEIN-SUBDOMAIN.workers.dev`
 
-3. **Body-Beispiel** (wenn du ein Array `busySlots` hast):  
-   `{ "busy": {{busySlots}} }`
+In `buchen.html` bei `BUSY_SLOTS_WEBHOOK` eintragen:
+```javascript
+const BUSY_SLOTS_WEBHOOK = 'https://laionex-calendar.xxx.workers.dev';
+```
 
-### Schritt 7: Speichern & aktivieren
-
-1. **Save** (unten links)
-2. Szenario **aktivieren** (Toggle)
-3. Webhook-URL kopieren und in `buchen.html` bei `BUSY_SLOTS_WEBHOOK` eintragen
+**Fertig.** Die Buchungsseite blendet belegte Slots automatisch aus.
 
 ---
 
-## Alternative: Nur Google Sheet (ohne Zoho-API)
+## Option B: Make.com (falls du Make schon nutzt)
 
-Wenn die Zoho-API zu aufwendig ist:
+Falls du Make.com für andere Automatisierungen nutzt, kannst du stattdessen ein Webhook-Szenario bauen:
 
-1. **Make-Szenario:** Zeitplan (z.B. alle 15 Min)
-2. **Zoho Calendar** – falls vorhanden: „List events“ oder ähnlich
-3. **Google Sheets** – „Add row“ für jedes Event (date, time)
+1. **Webhook** als Trigger (Custom webhook)
+2. **HTTP** → Zoho Free/Busy API oder Google Calendar API
+3. **Respond to Webhook** mit `{ "busy": ["09:00", "10:00"] }`
 
-Die Website liest bereits aus dem Sheet. Wenn Zoho-Events dort landen, werden sie automatisch als belegt angezeigt.
+Die Webhook-URL muss **GET** mit `?date=YYYY-MM-DD` unterstützen.
+
+Details siehe [Make-Szenario (ausführlich)](#make-szenario-ausführlich) unten.
 
 ---
 
-## Nach dem Setup
+## API-Format
 
-Schick mir die **Webhook-URL**, dann trage ich sie in `buchen.html` ein und pushe die Änderung.
+Die Buchungsseite ruft auf:
+```
+GET BUSY_SLOTS_WEBHOOK?date=2026-03-16
+```
+
+Erwartete Antwort:
+```json
+{ "busy": ["09:00", "10:00", "14:00"] }
+```
+
+Die Slots `09:00`, `09:30`, `10:00`, … `16:30` werden mit deinem Kalender abgeglichen.
+
+---
+
+## Make-Szenario (ausführlich)
+
+### Schritt 1: Webhook
+- Make → Scenarios → Create
+- **Webhooks** → **Custom webhook**
+- Webhook-URL kopieren
+
+### Schritt 2: HTTP – Zoho Free/Busy
+- **HTTP** → Make a request
+- URL: `https://calendar.zoho.com/api/v1/calendars/freebusy`
+- Query: `uemail`, `sdate`, `edate`
+- Auth: OAuth 2.0 (Zoho Connection)
+
+### Schritt 3: Response mappen
+- Zoho liefert `freebusy`-Array
+- Daraus `["09:00", "10:00"]` bauen
+
+### Schritt 4: Respond to Webhook
+- Body: `{ "busy": [...] }`
+
+**Hinweis:** Make-Webhooks erwarten standardmäßig POST. Die Buchungsseite nutzt GET mit Query-Parameter. Stelle sicher, dass dein Webhook auch GET mit `?date=YYYY-MM-DD` akzeptiert (bei Make oft über „Webhook-URL“ + Query möglich).

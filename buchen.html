@@ -253,7 +253,7 @@
   const TIMEZONE = 'Europe/Vienna';
   const MAKE_WEBHOOK = 'https://hook.eu2.make.com/spx25hcsooa8lquuru09tny1edoz2ekz';
   const BOOKED_SLOTS_URL = 'https://docs.google.com/spreadsheets/d/1v19GABQJX9edo96-iLnGqMhUjhny2zXqGbaIpIYxcKw/export?format=csv&gid=0';
-  const BUSY_SLOTS_WEBHOOK = ''; // Optional: Make-Webhook der Zoho Calendar abfragt, z.B. https://hook.eu2.make.com/xxx
+  const BUSY_SLOTS_WEBHOOK = ''; // Cloudflare Worker (empfohlen) oder Make-Webhook. GET ?date=YYYY-MM-DD → { busy: ["09:00",...] }
   let bookedSlots = []; // Format: ["2026-03-20T09:00", "2026-03-21T14:00"]
   const DAYS = ['Mo','Di','Mi','Do','Fr','Sa','So'];
   const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
@@ -411,11 +411,8 @@
     try {
       const y = date.getFullYear(), m = String(date.getMonth() + 1).padStart(2, '0'), d = String(date.getDate()).padStart(2, '0');
       const dateStr = y + '-' + m + '-' + d;
-      const res = await fetch(BUSY_SLOTS_WEBHOOK, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ date: dateStr })
-      });
+      const sep = BUSY_SLOTS_WEBHOOK.includes('?') ? '&' : '?';
+      const res = await fetch(BUSY_SLOTS_WEBHOOK + sep + 'date=' + encodeURIComponent(dateStr));
       if (!res.ok) return [];
       const data = await res.json();
       const busy = data.busy || data.slots || [];
