@@ -226,6 +226,7 @@
         <input id="fieldEmail" type="email" placeholder="Deine E-Mail" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:var(--white);font-family:var(--font-mono);font-size:14px;padding:16px 20px;outline:none;transition:border-color 0.2s;" onfocus="this.style.borderColor='var(--orange)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
       </div>
 
+      <div id="bookingError" style="display:none; background:rgba(255,77,0,0.1); border:1px solid rgba(255,77,0,0.3); color:var(--orange); padding:12px 16px; margin-bottom:16px; font-size:13px;">Die Buchung konnte nicht gesendet werden. Bitte erneut versuchen.</div>
       <button class="confirm-btn" id="confirmBtn" onclick="submitBooking()">Termin bestätigen →</button>
       <p class="confirm-note">
         Du erhältst sofort eine Bestätigung per E-Mail.<br>
@@ -253,13 +254,14 @@
   // --- STATE ---
   const TIMEZONE = 'Europe/Vienna';
   const MAKE_WEBHOOK = 'https://hook.eu2.make.com/spx25hcsooa8lquuru09tny1edoz2ekz';
-  const BOOKED_SLOTS_URL = 'https://docs.google.com/spreadsheets/d/1v19GABQJX9edo96-iLnGqMhUjhny2zXqGbaIpIYxcKw/export?format=csv&gid=0';
   // Cal.com API für Verfügbarkeit (liest aus deinem Zoho-Kalender)
+  // Option A: CAL_COM_PROXY_URL setzen – Worker-Proxy, API-Key bleibt geschützt
+  // Option B: CAL_COM_API_KEY setzen – Direktaufruf (Key im Client sichtbar)
+  const CAL_COM_PROXY_URL = ''; // z.B. https://laionex-calendar.xxx.workers.dev/slots
   const CAL_COM_USERNAME = 'laionex.ai';
   const CAL_COM_EVENT_SLUG = 'kostenloser-ki-analyse-call';
-  const CAL_COM_API_KEY = 'cal_live_894e3fa42901b61049273db37ee2dc78';
-  const slotsCache = {}; // dateStr -> ["09:00", "10:00", ...]
-  let bookedSlots = [];
+  const CAL_COM_API_KEY = CAL_COM_PROXY_URL ? '' : 'cal_live_894e3fa42901b61049273db37ee2dc78';
+  const slotsCache = {}; // dateStr -> { ok, slots } oder { ok: false }
   const DAYS = ['Mo','Di','Mi','Do','Fr','Sa','So'];
   const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
 
@@ -310,35 +312,8 @@
   let selectedDate = null;
   let selectedTime = null;
 
-  async function loadBookedSlots() {
-    if (!BOOKED_SLOTS_URL || BOOKED_SLOTS_URL.includes('PLACEHOLDER')) {
-      bookedSlots = [];
-      return;
-    }
-    try {
-      const res = await fetch(BOOKED_SLOTS_URL);
-      if (!res.ok) throw new Error('Fetch failed');
-      const csv = await res.text();
-      const lines = csv.trim().split('\n');
-      const dateRe = /^\d{4}-\d{2}-\d{2}$/;
-      const timeRe = /^\d{1,2}:\d{2}$/;
-      bookedSlots = lines
-        .map(row => {
-          const parts = row.split(',').map(s => s.trim().replace(/"/g, ''));
-          const date = parts[0] || '';
-          const time = (parts[1] || '').replace(/ Uhr$/, '');
-          if (!dateRe.test(date) || !timeRe.test(time)) return '';
-          return date + 'T' + time;
-        })
-        .filter(s => s.length > 5);
-    } catch(e) {
-      bookedSlots = [];
-    }
-  }
-
   // --- INIT ---
   async function init() {
-    await loadBookedSlots();
     if (prefill.name) {
       document.getElementById('prefillCard').style.display = 'flex';
       document.getElementById('prefillName').textContent = prefill.name + (prefill.firma ? ' · ' + prefill.firma : '');
@@ -405,25 +380,24 @@
   async function preloadSlotsForMonth() {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
-    const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const datesToFetch = [];
     for (let d = 1; d <= lastDay.getDate(); d++) {
       const dayDate = new Date(year, month, d);
       const dow = dayDate.getDay();
-      if (dayDate > today && dow !== 0 && dow !== 6) {
-        datesToFetch.push(dayDate);
-      }
+      if (dayDate > today && dow !== 0 && dow !== 6) datesToFetch.push(dayDate);
     }
-    await Promise.all(datesToFetch.map(d => fetchAndCacheSlots(d)));
+    const BATCH = 5;
+    for (let i = 0; i < datesToFetch.length; i += BATCH) {
+      await Promise.all(datesToFetch.slice(i, i + BATCH).map(d => fetchAndCacheSlots(d)));
+    }
   }
 
   async function fetchAndCacheSlots(date) {
     const y = date.getFullYear(), m = String(date.getMonth() + 1).padStart(2, '0'), d = String(date.getDate()).padStart(2, '0');
     const dateStr = y + '-' + m + '-' + d;
-    if (slotsCache[dateStr]) return;
-    const slots = await fetchCalComAvailableSlots(date);
-    slotsCache[dateStr] = slots;
+    if (slotsCache[dateStr] !== undefined) return;
+    await fetchCalComAvailableSlots(date);
   }
 
   function selectDate(date, cell) {
@@ -436,30 +410,37 @@
   }
 
   async function fetchCalComAvailableSlots(date) {
-    if (!CAL_COM_USERNAME || !CAL_COM_EVENT_SLUG) return [];
     const y = date.getFullYear(), m = String(date.getMonth() + 1).padStart(2, '0'), d = String(date.getDate()).padStart(2, '0');
     const dateStr = y + '-' + m + '-' + d;
-    if (slotsCache[dateStr]) return slotsCache[dateStr];
+    if (slotsCache[dateStr] !== undefined) return slotsCache[dateStr];
+    const useProxy = CAL_COM_PROXY_URL && CAL_COM_PROXY_URL.trim();
+    if (!useProxy && (!CAL_COM_USERNAME || !CAL_COM_EVENT_SLUG)) return { ok: false };
     try {
-      const next = new Date(date);
-      next.setDate(next.getDate() + 1);
-      const endStr = next.getFullYear() + '-' + String(next.getMonth() + 1).padStart(2, '0') + '-' + String(next.getDate()).padStart(2, '0');
-      const url = `https://api.cal.com/v2/slots?eventTypeSlug=${encodeURIComponent(CAL_COM_EVENT_SLUG)}&username=${encodeURIComponent(CAL_COM_USERNAME)}&start=${dateStr}&end=${endStr}&timeZone=${encodeURIComponent(TIMEZONE)}`;
-      const headers = { 'cal-api-version': '2024-09-04' };
-      if (CAL_COM_API_KEY) headers['Authorization'] = 'Bearer ' + CAL_COM_API_KEY;
+      let url, headers = {};
+      if (useProxy) {
+        const sep = CAL_COM_PROXY_URL.includes('?') ? '&' : '?';
+        url = CAL_COM_PROXY_URL.replace(/\/$/, '') + (CAL_COM_PROXY_URL.includes('/slots') ? '' : '/slots') + sep + 'date=' + dateStr;
+      } else {
+        const next = new Date(date);
+        next.setDate(next.getDate() + 1);
+        const endStr = next.getFullYear() + '-' + String(next.getMonth() + 1).padStart(2, '0') + '-' + String(next.getDate()).padStart(2, '0');
+        url = `https://api.cal.com/v2/slots?eventTypeSlug=${encodeURIComponent(CAL_COM_EVENT_SLUG)}&username=${encodeURIComponent(CAL_COM_USERNAME)}&start=${dateStr}&end=${endStr}&timeZone=${encodeURIComponent(TIMEZONE)}`;
+        headers = { 'cal-api-version': '2024-09-04' };
+        if (CAL_COM_API_KEY) headers['Authorization'] = 'Bearer ' + CAL_COM_API_KEY;
+      }
       const res = await fetch(url, { headers });
-      if (!res.ok) return [];
+      if (!res.ok) { slotsCache[dateStr] = { ok: false }; return { ok: false }; }
       const json = await res.json();
       const daySlots = json?.data?.[dateStr] || [];
       const result = daySlots.map(s => {
         const str = typeof s === 'string' ? s : (s?.start || s);
         if (!str) return '';
-        const m = str.match(/T(\d{2}):(\d{2})/);
-        return m ? m[1] + ':' + m[2] : '';
+        const match = str.match(/T(\d{2}):(\d{2})/);
+        return match ? match[1] + ':' + match[2] : '';
       }).filter(Boolean);
-      slotsCache[dateStr] = result;
-      return result;
-    } catch(e) { return []; }
+      slotsCache[dateStr] = { ok: true, slots: result };
+      return { ok: true, slots: result };
+    } catch(e) { slotsCache[dateStr] = { ok: false }; return { ok: false }; }
   }
 
   async function renderSlots(date) {
@@ -471,12 +452,25 @@
     title.textContent = date.toLocaleDateString('de-AT', opts);
     const y = date.getFullYear(), m = String(date.getMonth() + 1).padStart(2, '0'), d = String(date.getDate()).padStart(2, '0');
     const dateStr = y + '-' + m + '-' + d;
-    if (!slotsCache[dateStr]) slotsGrid.innerHTML = '<div class="slots-loading">Verfügbarkeit wird geladen …</div>';
-    const availableSlots = await fetchCalComAvailableSlots(date);
+    if (slotsCache[dateStr] === undefined) slotsGrid.innerHTML = '<div class="slots-loading">Verfügbarkeit wird geladen …</div>';
+    const result = await fetchCalComAvailableSlots(date);
     slotsGrid.innerHTML = '';
     const isToday = date.getTime() === today.getTime();
     const nowVienna = new Date(new Date().toLocaleString('en-US', { timeZone: TIMEZONE }));
     const currentMinutes = nowVienna.getHours() * 60 + nowVienna.getMinutes();
+
+    if (!result?.ok) {
+      delete slotsCache[dateStr];
+      const retryBtn = document.createElement('button');
+      retryBtn.textContent = 'Erneut laden';
+      retryBtn.style.cssText = 'margin-top:12px;background:var(--orange);color:var(--black);border:none;padding:8px 16px;font-family:var(--font-mono);font-size:11px;cursor:pointer;';
+      retryBtn.onclick = () => renderSlots(date);
+      slotsGrid.innerHTML = '<div class="slots-loading">Verfügbarkeit konnte nicht geladen werden.</div>';
+      slotsGrid.querySelector('.slots-loading').appendChild(retryBtn);
+      section.classList.add('visible');
+      return;
+    }
+    const availableSlots = result.slots || [];
 
     SLOT_TIMES.forEach(time => {
       const isAvailable = availableSlots.includes(time);
@@ -591,19 +585,28 @@
     document.getElementById('loadingOverlay').classList.add('active');
 
     try {
-      await fetch(MAKE_WEBHOOK, {
+      const res = await fetch(MAKE_WEBHOOK, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
       });
-      const newSlotKey = selectedDate.getFullYear() + '-' + String(selectedDate.getMonth() + 1).padStart(2, '0') + '-' + String(selectedDate.getDate()).padStart(2, '0') + 'T' + selectedTime;
-      bookedSlots.push(newSlotKey);
-    } catch(e) {}
-
-    setTimeout(() => {
       document.getElementById('loadingOverlay').classList.remove('active');
-      showSuccess(payload);
-    }, 1800);
+      if (res.ok) {
+        showSuccess(payload);
+      } else {
+        showBookingError();
+      }
+    } catch(e) {
+      document.getElementById('loadingOverlay').classList.remove('active');
+      showBookingError();
+    }
+  }
+
+  function showBookingError() {
+    document.getElementById('bookingError').style.display = 'block';
+    const btn = document.getElementById('confirmBtn');
+    btn.textContent = 'Erneut versuchen →';
+    btn.onclick = function retry() { document.getElementById('bookingError').style.display = 'none'; btn.textContent = 'Termin bestätigen →'; btn.onclick = () => submitBooking(); submitBooking(); };
   }
 
   function showSuccess(payload) {

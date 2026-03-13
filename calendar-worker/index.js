@@ -1,10 +1,13 @@
 /**
- * Cloudflare Worker: Kalender-Availability aus ICS-Feed
- * 
- * Nutzung: GET /?date=2026-03-16  oder  POST mit { "date": "2026-03-16" }
- * Antwort: { "busy": ["09:00", "10:00", ...] }
- * 
- * Env: ICS_URL = öffentlicher Zoho/Google-Kalender-ICS-Link
+ * Cloudflare Worker: Kalender-Availability
+ *
+ * Route /slots: Cal.com-Proxy (API-Key geschützt)
+ *   GET /slots?date=2026-03-16
+ *   Env: CAL_COM_API_KEY, CAL_COM_USERNAME, CAL_COM_EVENT_SLUG
+ *
+ * Route /: ICS-Feed (falls ICS_URL gesetzt)
+ *   GET /?date=2026-03-16
+ *   Env: ICS_URL
  */
 
 const SLOT_TIMES = ['09:00','09:30','10:00','10:30','11:00','11:30','14:00','14:30','15:00','15:30','16:00','16:30'];
@@ -16,8 +19,9 @@ export default {
     }
 
     const url = new URL(request.url);
+    const path = url.pathname.replace(/\/$/, '') || '/';
     let dateStr = url.searchParams.get('date');
-    
+
     if (!dateStr && request.method === 'POST') {
       try {
         const body = await request.json();
@@ -29,9 +33,31 @@ export default {
       return jsonResponse({ error: 'date required (YYYY-MM-DD)' }, 400);
     }
 
+    // Cal.com Proxy – API-Key bleibt im Worker
+    if (path === '/slots' && env.CAL_COM_API_KEY && env.CAL_COM_USERNAME && env.CAL_COM_EVENT_SLUG) {
+      const [y, mo, d] = dateStr.split('-').map(Number);
+      const nextDay = new Date(y, mo - 1, d + 1);
+      const endStr = nextDay.getFullYear() + '-' + String(nextDay.getMonth() + 1).padStart(2, '0') + '-' + String(nextDay.getDate()).padStart(2, '0');
+      const calUrl = `https://api.cal.com/v2/slots?eventTypeSlug=${encodeURIComponent(env.CAL_COM_EVENT_SLUG)}&username=${encodeURIComponent(env.CAL_COM_USERNAME)}&start=${dateStr}&end=${endStr}&timeZone=Europe%2FVienna`;
+      try {
+        const res = await fetch(calUrl, {
+          headers: { 'cal-api-version': '2024-09-04', 'Authorization': 'Bearer ' + env.CAL_COM_API_KEY },
+        });
+        const json = await res.json();
+        const data = res.ok ? json : { data: {} };
+        return new Response(JSON.stringify(data), {
+          status: res.status,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders() },
+        });
+      } catch (e) {
+        return jsonResponse({ error: 'Cal.com unavailable', data: {} }, 502);
+      }
+    }
+
+    // ICS-Feed
     const icsUrl = env.ICS_URL;
     if (!icsUrl) {
-      return jsonResponse({ error: 'ICS_URL not configured' }, 500);
+      return jsonResponse({ error: 'ICS_URL or Cal.com not configured' }, 500);
     }
 
     try {

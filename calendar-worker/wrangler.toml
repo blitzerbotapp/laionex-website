@@ -2,9 +2,9 @@ name = "laionex-calendar"
 main = "index.js"
 compatibility_date = "2024-01-01"
 
-# ICS-URL als Secret setzen: wrangler secret put ICS_URL
-# Zoho: Kalender → Bearbeiten → Öffentlich → iCal-URL kopieren
-# Google: Kalender → Einstellungen → Öffentliche Adresse in iCal-Format
+# Secrets: wrangler secret put <NAME>
+# ICS_URL = Zoho/Google iCal-URL (für Route /)
+# CAL_COM_API_KEY, CAL_COM_USERNAME, CAL_COM_EVENT_SLUG (für Route /slots – API-Key geschützt)
 
 [vars]
 # Optional: ICS_URL hier eintragen (oder als Secret für mehr Sicherheit)

@@ -32,21 +32,28 @@ Nach dem Deploy siehst du die URL, z.B.:
 
 ---
 
-## Schritt 3: ICS-URL hinterlegen
+## Schritt 3: Secrets hinterlegen
 
+**Für Cal.com-Proxy (API-Key geschützt):**
+```bash
+npx wrangler secret put CAL_COM_API_KEY
+npx wrangler secret put CAL_COM_USERNAME
+npx wrangler secret put CAL_COM_EVENT_SLUG
+```
+(Eingabe: dein Cal.com-Key, `laionex.ai`, `kostenloser-ki-analyse-call`)
+
+**Oder für ICS-Kalender:**
 ```bash
 npx wrangler secret put ICS_URL
 ```
-
-Eingabe: deine öffentliche Kalender-URL, z.B.:
-- Zoho: `https://calendar.zoho.com/feed/...`
-- Google: `https://calendar.google.com/calendar/ical/.../public/basic.ics`
+(Eingabe: Zoho/Google iCal-URL)
 
 ---
 
 ## Schritt 4: URL in buchen.html eintragen
 
-Die Worker-URL (aus Schritt 2) in `buchen.html` bei `BUSY_SLOTS_WEBHOOK` eintragen.
+**Cal.com-Proxy:** `CAL_COM_PROXY_URL = 'https://laionex-calendar.xxx.workers.dev'`  
+(Dann bleibt der API-Key im Worker, nicht im Client.)
 
 ---
 
