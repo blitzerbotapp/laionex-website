@@ -100,13 +100,11 @@
   .hero-note { font-family: var(--font-mono); font-size: 11px; color: var(--grey-text); letter-spacing: 0.5px; }
 
   /* ── TICKER ── */
-  .ticker { border-top: 1px solid var(--grey-mid); border-bottom: 1px solid var(--grey-mid); padding: 16px 0; overflow: hidden; background: var(--grey); }
-  .ticker-inner { display: flex; flex-shrink: 0; will-change: transform; --ticker-offset: 0px; }
-  .ticker-inner.ticker-ready { animation: ticker 18s linear infinite; }
+  .ticker { border-top: 1px solid var(--grey-mid); border-bottom: 1px solid var(--grey-mid); padding: 16px 0; overflow: hidden; background: var(--grey); contain: layout style paint; }
+  .ticker-inner { display: flex; flex-shrink: 0; will-change: transform; backface-visibility: hidden; transform: translateZ(0); }
   .ticker-track { display: flex; gap: 80px; flex-shrink: 0; white-space: nowrap; padding-right: 80px; }
   .ticker-item { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--grey-text); display: flex; align-items: center; gap: 20px; flex-shrink: 0; }
   .ticker-dot { width: 4px; height: 4px; background: var(--orange); border-radius: 50%; }
-  @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(var(--ticker-offset), 0, 0); } }
 
   /* ── SECTIONS ── */
   .section { padding: 120px 48px; }
@@ -311,9 +309,6 @@
     /* Cookie */
     #cookieBanner { flex-direction: column; align-items: stretch; padding: 16px 48px 16px 24px; gap: 12px; }
     #cookieBanner .cookie-close { top: 16px; right: 16px; padding: 12px; font-size: 24px; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
-
-    /* Ticker: langsamer auf Smartphone (10s) */
-    .ticker-inner { animation-duration: 10s; }
 
     /* Impressum/Datenschutz sections */
     #impressum, #datenschutz { padding: 60px 24px !important; }
@@ -906,34 +901,56 @@
   }, { threshold: 0.1 });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-  // ── TICKER: exakte Pixel-Breite für nahtlose Loop (kein Jump) ──
-  function initTicker() {
+  // ── TICKER: requestAnimationFrame 60fps, nahtlose Loop ohne Jump ──
+  (function() {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    requestAnimationFrame(function() {
-      const inner = document.querySelector('.ticker-inner');
-      const track = document.querySelector('.ticker-track');
-      if (!inner || !track) return;
-      const w = track.getBoundingClientRect().width;
-      inner.style.setProperty('--ticker-offset', '-' + w + 'px');
-      inner.classList.add('ticker-ready');
-    });
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initTicker);
-  } else {
-    initTicker();
-  }
-  var tickerResizeT;
-  window.addEventListener('resize', function() {
-    clearTimeout(tickerResizeT);
-    tickerResizeT = setTimeout(function() {
-      const inner = document.querySelector('.ticker-inner');
-      if (inner && inner.classList.contains('ticker-ready')) {
-        const track = document.querySelector('.ticker-track');
-        if (track) inner.style.setProperty('--ticker-offset', '-' + track.getBoundingClientRect().width + 'px');
+    var inner = document.querySelector('.ticker-inner');
+    var track = document.querySelector('.ticker-track');
+    if (!inner || !track) return;
+    var trackWidth = 0;
+    var pos = 0;
+    var lastT = 0;
+    var mq = window.matchMedia('(max-width: 768px)');
+    function getDuration() { return mq.matches ? 10 : 18; }
+    function measure() {
+      trackWidth = track.getBoundingClientRect().width;
+      return trackWidth > 0;
+    }
+    function tick(now) {
+      if (trackWidth <= 0 && !measure()) { requestAnimationFrame(tick); return; }
+      if (lastT === 0) lastT = now;
+      var dt = Math.min((now - lastT) / 1000, 0.1);
+      lastT = now;
+      var speed = trackWidth / getDuration();
+      pos -= speed * dt;
+      while (pos <= -trackWidth) pos += trackWidth;
+      inner.style.transform = 'translate3d(' + pos + 'px, 0, 0)';
+      requestAnimationFrame(tick);
+    }
+    function start() {
+      var ready = function() {
+        requestAnimationFrame(function() {
+          if (measure()) tick(performance.now());
+        });
+      };
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(ready);
+      } else {
+        ready();
       }
-    }, 100);
-  });
+    }
+    var rt;
+    mq.addEventListener('change', function() { if (rt) clearTimeout(rt); rt = setTimeout(measure, 50); });
+    window.addEventListener('resize', function() {
+      if (rt) clearTimeout(rt);
+      rt = setTimeout(measure, 100);
+    });
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', start);
+    } else {
+      start();
+    }
+  })();
 </script>
 </body>
 </html>
