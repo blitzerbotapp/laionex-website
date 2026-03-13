@@ -101,11 +101,12 @@
 
   /* ── TICKER ── */
   .ticker { border-top: 1px solid var(--grey-mid); border-bottom: 1px solid var(--grey-mid); padding: 16px 0; overflow: hidden; background: var(--grey); }
-  .ticker-inner { display: flex; flex-shrink: 0; animation: ticker 16s linear infinite; will-change: transform; }
+  .ticker-inner { display: flex; flex-shrink: 0; will-change: transform; --ticker-offset: 0px; }
+  .ticker-inner.ticker-ready { animation: ticker 16s linear infinite; }
   .ticker-track { display: flex; gap: 80px; flex-shrink: 0; white-space: nowrap; padding-right: 80px; }
   .ticker-item { font-family: var(--font-mono); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: var(--grey-text); display: flex; align-items: center; gap: 20px; flex-shrink: 0; }
   .ticker-dot { width: 4px; height: 4px; background: var(--orange); border-radius: 50%; }
-  @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-50%, 0, 0); } }
+  @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(var(--ticker-offset), 0, 0); } }
 
   /* ── SECTIONS ── */
   .section { padding: 120px 48px; }
@@ -312,7 +313,7 @@
     #cookieBanner .cookie-close { top: 16px; right: 16px; padding: 12px; font-size: 24px; min-width: 44px; min-height: 44px; display: flex; align-items: center; justify-content: center; }
 
     /* Ticker: schneller auf Smartphone */
-    .ticker-inner { animation-duration: 8s; }
+    .ticker-inner { animation-duration: 6s; }
 
     /* Impressum/Datenschutz sections */
     #impressum, #datenschutz { padding: 60px 24px !important; }
@@ -904,6 +905,35 @@
     entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); observer.unobserve(e.target); } });
   }, { threshold: 0.1 });
   document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // ── TICKER: exakte Pixel-Breite für nahtlose Loop (kein Jump) ──
+  function initTicker() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    requestAnimationFrame(function() {
+      const inner = document.querySelector('.ticker-inner');
+      const track = document.querySelector('.ticker-track');
+      if (!inner || !track) return;
+      const w = track.getBoundingClientRect().width;
+      inner.style.setProperty('--ticker-offset', '-' + w + 'px');
+      inner.classList.add('ticker-ready');
+    });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTicker);
+  } else {
+    initTicker();
+  }
+  var tickerResizeT;
+  window.addEventListener('resize', function() {
+    clearTimeout(tickerResizeT);
+    tickerResizeT = setTimeout(function() {
+      const inner = document.querySelector('.ticker-inner');
+      if (inner && inner.classList.contains('ticker-ready')) {
+        const track = document.querySelector('.ticker-track');
+        if (track) inner.style.setProperty('--ticker-offset', '-' + track.getBoundingClientRect().width + 'px');
+      }
+    }, 100);
+  });
 </script>
 </body>
 </html>
