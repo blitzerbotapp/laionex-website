@@ -252,7 +252,8 @@
   // --- STATE ---
   const TIMEZONE = 'Europe/Vienna';
   const MAKE_WEBHOOK = 'https://hook.eu2.make.com/spx25hcsooa8lquuru09tny1edoz2ekz';
-  const BOOKED_SLOTS_URL = 'PLACEHOLDER_SHEET_CSV_URL';
+  const BOOKED_SLOTS_URL = 'https://docs.google.com/spreadsheets/d/1v19GABQJX9edo96-iLnGqMhUjhny2zXqGbaIpIYxcKw/export?format=csv&gid=0';
+  const BUSY_SLOTS_WEBHOOK = ''; // Optional: Make-Webhook der Zoho Calendar abfragt, z.B. https://hook.eu2.make.com/xxx
   let bookedSlots = []; // Format: ["2026-03-20T09:00", "2026-03-21T14:00"]
   const DAYS = ['Mo','Di','Mi','Do','Fr','Sa','So'];
   const MONTHS = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
@@ -314,13 +315,14 @@
       if (!res.ok) throw new Error('Fetch failed');
       const csv = await res.text();
       const lines = csv.trim().split('\n');
-      if (lines.length < 2) { bookedSlots = []; return; }
-      bookedSlots = lines.slice(1)
+      const dateRe = /^\d{4}-\d{2}-\d{2}$/;
+      const timeRe = /^\d{1,2}:\d{2}$/;
+      bookedSlots = lines
         .map(row => {
           const parts = row.split(',').map(s => s.trim().replace(/"/g, ''));
           const date = parts[0] || '';
-          const time = parts[1] || '';
-          if (!date || !time) return '';
+          const time = (parts[1] || '').replace(/ Uhr$/, '');
+          if (!dateRe.test(date) || !timeRe.test(time)) return '';
           return date + 'T' + time;
         })
         .filter(s => s.length > 5);
@@ -404,7 +406,24 @@
     document.getElementById('confirmSection').classList.remove('visible');
   }
 
-  function renderSlots(date) {
+  async function fetchZohoBusySlots(date) {
+    if (!BUSY_SLOTS_WEBHOOK || !BUSY_SLOTS_WEBHOOK.trim()) return [];
+    try {
+      const y = date.getFullYear(), m = String(date.getMonth() + 1).padStart(2, '0'), d = String(date.getDate()).padStart(2, '0');
+      const dateStr = y + '-' + m + '-' + d;
+      const res = await fetch(BUSY_SLOTS_WEBHOOK, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: dateStr })
+      });
+      if (!res.ok) return [];
+      const data = await res.json();
+      const busy = data.busy || data.slots || [];
+      return Array.isArray(busy) ? busy.map(s => s.includes('T') ? s : dateStr + 'T' + s) : [];
+    } catch(e) { return []; }
+  }
+
+  async function renderSlots(date) {
     const section = document.getElementById('slotsSection');
     const slotsGrid = document.getElementById('slotsGrid');
     const title = document.getElementById('slotsTitle');
@@ -419,9 +438,12 @@
     const nowVienna = new Date(new Date().toLocaleString('en-US', { timeZone: TIMEZONE }));
     const currentMinutes = nowVienna.getHours() * 60 + nowVienna.getMinutes();
 
+    const zohoBusy = await fetchZohoBusySlots(date);
+    const allBusy = [...new Set([...bookedSlots, ...zohoBusy])];
+
     SLOT_TIMES.forEach(time => {
       const slotKey = dateStr + 'T' + time;
-      const isBooked = bookedSlots.includes(slotKey);
+      const isBooked = allBusy.includes(slotKey);
       const [th, tm] = time.split(':').map(Number);
       const slotMinutes = th * 60 + tm;
       const isPast = isToday && slotMinutes <= currentMinutes;
