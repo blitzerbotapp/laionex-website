@@ -51,6 +51,8 @@
     .right-panel { padding: 60px 64px; overflow-y: auto; }
     .section-label { font-size: 11px; letter-spacing: 3px; color: var(--orange); text-transform: uppercase; margin-bottom: 32px; display: flex; align-items: center; gap: 16px; }
     .section-label::after { content: ''; width: 40px; height: 1px; background: var(--orange); opacity: 0.4; }
+    .timezone-notice { font-size: 11px; color: var(--grey-text); letter-spacing: 1px; margin-bottom: 24px; }
+    .timezone-notice strong { color: var(--orange); }
 
     /* PREFILL SUMMARY */
     .prefill-card { background: rgba(255,77,0,0.05); border: 1px solid rgba(255,77,0,0.12); padding: 20px 24px; margin-bottom: 40px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
@@ -165,6 +167,7 @@
   <!-- RIGHT PANEL -->
   <div class="right-panel" id="mainPanel">
     <div class="section-label">Wunschtermin wählen</div>
+    <p class="timezone-notice">Alle Termine in Zeitzone <strong>Europe/Vienna</strong> (Österreich).</p>
 
     <!-- Prefill summary (shown if coming from flow) -->
     <div class="prefill-card" id="prefillCard" style="display:none;">
@@ -247,6 +250,7 @@
 
 <script>
   // --- STATE ---
+  const TIMEZONE = 'Europe/Vienna';
   const MAKE_WEBHOOK = 'https://hook.eu2.make.com/spx25hcsooa8lquuru09tny1edoz2ekz';
   const BOOKED_SLOTS_URL = 'PLACEHOLDER_SHEET_CSV_URL';
   let bookedSlots = []; // Format: ["2026-03-20T09:00", "2026-03-21T14:00"]
@@ -269,20 +273,54 @@
 
   let currentDate = new Date();
   currentDate.setDate(1);
-  const today = new Date();
-  today.setHours(0,0,0,0);
+
+  // Heute in Europe/Vienna (kein automatisches Umschalten auf Besucher-Zeitzone)
+  function getTodayInVienna() {
+    const now = new Date();
+    const str = now.toLocaleDateString('en-CA', { timeZone: TIMEZONE });
+    const [y, m, d] = str.split('-').map(Number);
+    const d2 = new Date(y, m - 1, d);
+    d2.setHours(0, 0, 0, 0);
+    return d2;
+  }
+  const today = getTodayInVienna();
+
+  // Vienna-Offset für ein Datum (CET/CEST): "+0100" oder "+0200"
+  function getViennaOffsetForDate(date) {
+    const d = date instanceof Date ? date : new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0);
+    const formatter = new Intl.DateTimeFormat('en', { timeZone: TIMEZONE, timeZoneName: 'longOffset' });
+    const parts = formatter.formatToParts(d);
+    const tz = parts.find(p => p.type === 'timeZoneName')?.value || '';
+    const m = tz.match(/GMT([+-])(\d+):?(\d+)?/);
+    if (m) {
+      const sign = m[1];
+      const h = String(Math.abs(parseInt(m[2], 10))).padStart(2, '0');
+      const min = (m[3] ? String(Math.abs(parseInt(m[3], 10))) : '00').padStart(2, '0');
+      return sign + h + min;
+    }
+    return '+0100';
+  }
 
   let selectedDate = null;
   let selectedTime = null;
 
   async function loadBookedSlots() {
+    if (!BOOKED_SLOTS_URL || BOOKED_SLOTS_URL.includes('PLACEHOLDER')) {
+      bookedSlots = [];
+      return;
+    }
     try {
       const res = await fetch(BOOKED_SLOTS_URL);
+      if (!res.ok) throw new Error('Fetch failed');
       const csv = await res.text();
-      bookedSlots = csv.trim().split('\n')
-        .slice(1)
+      const lines = csv.trim().split('\n');
+      if (lines.length < 2) { bookedSlots = []; return; }
+      bookedSlots = lines.slice(1)
         .map(row => {
-          const [date, time] = row.split(',').map(s => s.trim().replace(/"/g, ''));
+          const parts = row.split(',').map(s => s.trim().replace(/"/g, ''));
+          const date = parts[0] || '';
+          const time = parts[1] || '';
+          if (!date || !time) return '';
           return date + 'T' + time;
         })
         .filter(s => s.length > 5);
@@ -371,20 +409,27 @@
     const slotsGrid = document.getElementById('slotsGrid');
     const title = document.getElementById('slotsTitle');
 
-    const opts = { weekday: 'long', day: 'numeric', month: 'long' };
+    const opts = { weekday: 'long', day: 'numeric', month: 'long', timeZone: TIMEZONE };
     title.textContent = date.toLocaleDateString('de-AT', opts);
     slotsGrid.innerHTML = '';
 
     const y = date.getFullYear(), m = String(date.getMonth() + 1).padStart(2, '0'), d = String(date.getDate()).padStart(2, '0');
     const dateStr = y + '-' + m + '-' + d;
+    const isToday = date.getTime() === today.getTime();
+    const nowVienna = new Date(new Date().toLocaleString('en-US', { timeZone: TIMEZONE }));
+    const currentMinutes = nowVienna.getHours() * 60 + nowVienna.getMinutes();
+
     SLOT_TIMES.forEach(time => {
       const slotKey = dateStr + 'T' + time;
       const isBooked = bookedSlots.includes(slotKey);
+      const [th, tm] = time.split(':').map(Number);
+      const slotMinutes = th * 60 + tm;
+      const isPast = isToday && slotMinutes <= currentMinutes;
 
       const btn = document.createElement('button');
-      btn.className = 'slot-btn' + (isBooked ? ' taken' : '');
+      btn.className = 'slot-btn' + (isBooked || isPast ? ' taken' : '');
       btn.textContent = isBooked ? time + ' ✓' : time;
-      if (!isBooked) btn.onclick = () => selectTime(time, btn);
+      if (!isBooked && !isPast) btn.onclick = () => selectTime(time, btn);
       else btn.disabled = true;
       slotsGrid.appendChild(btn);
     });
@@ -409,7 +454,7 @@
   }
 
   function renderConfirm() {
-    const opts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    const opts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: TIMEZONE };
     document.getElementById('confirmDateTime').textContent =
       selectedDate.toLocaleDateString('de-AT', opts) + ' · ' + selectedTime + ' Uhr';
 
@@ -445,7 +490,7 @@
       return;
     }
 
-    const opts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    const opts = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', timeZone: TIMEZONE };
     const dateStr = selectedDate.toLocaleDateString('de-AT', opts);
 
     // date: YYYY-MM-DD (local, not UTC - toISOString would be wrong for timezones)
@@ -457,15 +502,16 @@
     // time: HH:mm (already correct from SLOT_TIMES)
     const timeFormatted = selectedTime;
 
-    // Zoho Calendar Format: yyyyMMddTHHmmssZ (z.B. 20260320T110000Z)
+    // Zoho Calendar Format: yyyyMMddTHHmmss+offset (Europe/Vienna: +0100 oder +0200)
     const dateZoho = y + m + d;
     const [th, tm] = timeFormatted.split(':');
     const timeZoho = th + tm + '00';
     const endTime = addMinutesToTime(timeFormatted, 30);
     const [eh, em] = endTime.split(':');
     const endTimeZoho = eh + em + '00';
-    const startZoho = dateZoho + 'T' + timeZoho + 'Z';
-    const endZoho = dateZoho + 'T' + endTimeZoho + 'Z';
+    const offset = getViennaOffsetForDate(selectedDate);
+    const startZoho = dateZoho + 'T' + timeZoho + offset;
+    const endZoho = dateZoho + 'T' + endTimeZoho + offset;
 
     const payload = {
       name,
@@ -474,10 +520,11 @@
       branche: prefill.branche || '',
       tel: prefill.tel || '',
       meeting: prefill.meeting || 'Zoom / Video Call',
+      timezone: TIMEZONE,
       date: dateFormatted,
       time: timeFormatted,
       date_readable: dateStr + ' · ' + selectedTime + ' Uhr',
-      timestamp: dateFormatted + 'T' + timeFormatted + ':00Z',
+      timestamp: dateFormatted + 'T' + timeFormatted + ':00' + offset,
       start_datetime: startZoho,
       end_datetime: endZoho
     };
